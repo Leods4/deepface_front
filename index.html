@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Reconhecimento Facial</h1>
-    <p>Selecione ou tire fotos de até 5 imagens.</p>
+    <p>Selecione ou tire fotos de até 5 imagens para cadastrar ou reconhecer.</p>
     
     <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
     
@@ -30,7 +30,13 @@
         <span id="textoPreview">Nenhuma imagem selecionada</span>
     </div>
     
-    <button id="btnAnalisar">Analisar Imagens</button>
+    <div class="acoes-container">
+        <input type="text" id="inputNome" placeholder="Digite o nome (Apenas para Cadastro)">
+        <div class="botoes-acao">
+            <button id="btnCadastrar" class="btn-cadastrar">Cadastrar Rosto</button>
+            <button id="btnAnalisar" class="btn-analisar">Reconhecer Imagens</button>
+        </div>
+    </div>
 
     <div id="resultado"></div>
 

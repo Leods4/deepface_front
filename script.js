@@ -1,7 +1,12 @@
+// URL base da API
+const BASE_URL = 'https://panoramic-figure-mushroom.ngrok-free.dev';
+
 // Seleciona os elementos do HTML
 const imagemInput = document.getElementById('imagemInput');
 const previewContainer = document.getElementById('previewContainer');
 const btnAnalisar = document.getElementById('btnAnalisar');
+const btnCadastrar = document.getElementById('btnCadastrar');
+const inputNome = document.getElementById('inputNome');
 const resultadoContainer = document.getElementById('resultado');
 
 // Elementos da Câmera
@@ -21,8 +26,6 @@ const LIMITE_IMAGENS = 5;
 imagemInput.addEventListener('change', (evento) => {
     const arquivos = Array.from(evento.target.files);
     adicionarImagens(arquivos);
-    
-    // Limpa o valor do input para permitir selecionar o mesmo arquivo novamente
     imagemInput.value = ''; 
 });
 
@@ -33,7 +36,6 @@ function adicionarImagens(novosArquivos) {
         novosArquivos = novosArquivos.slice(0, vagasRestantes);
     }
 
-    // Junta as imagens antigas com as novas
     imagensSelecionadas = [...imagensSelecionadas, ...novosArquivos];
     atualizarInterface();
 }
@@ -85,10 +87,12 @@ function atualizarInterface() {
     if (imagensSelecionadas.length === 0) {
         previewContainer.innerHTML = '<span id="textoPreview">Nenhuma imagem selecionada</span>';
         btnAnalisar.disabled = true;
+        btnCadastrar.disabled = true;
         return;
     }
 
     btnAnalisar.disabled = false;
+    btnCadastrar.disabled = false;
     previewContainer.innerHTML = ''; 
     
     imagensSelecionadas.forEach((arquivo, index) => {
@@ -114,32 +118,72 @@ function atualizarInterface() {
     });
 }
 
-// --- 4. COMUNICAÇÃO COM A API (INTEGRADO) ---
-btnAnalisar.addEventListener('click', async () => {
-    if (imagensSelecionadas.length === 0) {
-        resultadoContainer.innerHTML = "<p style='color: red; text-align: center;'>Por favor, selecione pelo menos uma imagem!</p>";
+// --- 4. COMUNICAÇÃO COM A API ---
+
+// Função genérica para tratar os cards de resultado
+function renderizarResultados(dados, tipo) {
+    resultadoContainer.innerHTML = "";
+    dados.resultados.forEach(res => {
+        const divItem = document.createElement('div');
+        divItem.classList.add('resultado-item');
+
+        if (res.status === "sucesso") {
+            divItem.classList.add('sucesso');
+            if (tipo === 'reconhecer') {
+                const distanciaFormatada = res.distancia.toFixed(4);
+                divItem.innerHTML = `
+                    <strong>✅ Arquivo enviado:</strong> ${res.arquivo} <br>
+                    <strong>Identificação:</strong> ${res.caminho_imagem} <br>
+                    <small>Distância (Confiança): ${distanciaFormatada}</small>
+                `;
+            } else {
+                // Cadastro
+                divItem.innerHTML = `
+                    <strong>✅ Arquivo cadastrado:</strong> ${res.arquivo} <br>
+                    <strong>Status:</strong> ${res.mensagem}
+                `;
+            }
+        } else if (res.status === "erro") {
+            divItem.classList.add('erro');
+            divItem.innerHTML = `
+                <strong>⚠️ Arquivo:</strong> ${res.arquivo} <br>
+                <strong>Erro:</strong> ${res.mensagem}
+            `;
+        } else {
+            divItem.classList.add('falha');
+            divItem.innerHTML = `
+                <strong>❓ Arquivo:</strong> ${res.arquivo} <br>
+                <strong>Resultado:</strong> Rosto não encontrado no banco de dados.
+            `;
+        }
+
+        resultadoContainer.appendChild(divItem);
+    });
+}
+
+// 4.1 Ação de CADASTRAR
+btnCadastrar.addEventListener('click', async () => {
+    const nome = inputNome.value.trim();
+    if (!nome) {
+        resultadoContainer.innerHTML = "<p style='color: red; text-align: center;'>Por favor, digite um nome para cadastrar!</p>";
+        inputNome.focus();
         return;
     }
 
+    btnCadastrar.disabled = true;
     btnAnalisar.disabled = true;
-    btnAnalisar.innerText = "Processando...";
-    resultadoContainer.innerHTML = "<p style='text-align: center;'>A analisar rostos... aguarde.</p>";
+    btnCadastrar.innerText = "Cadastrando...";
+    resultadoContainer.innerHTML = "<p style='text-align: center;'>A cadastrar rosto(s)... aguarde.</p>";
 
     const formData = new FormData();
-    
-    // Anexa os arquivos do array global, usando 'files' para o backend
-    imagensSelecionadas.forEach(arquivo => {
-        formData.append('files', arquivo); 
-    });
+    formData.append('nome', nome);
+    imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
 
     try {
-        // Link atualizado com o URL do Ngrok e o cabeçalho para ignorar o aviso
-        const resposta = await fetch('https://panoramic-figure-mushroom.ngrok-free.dev/api/reconhecer', { 
+        const resposta = await fetch(`${BASE_URL}/api/cadastrar`, { 
             method: 'POST', 
             body: formData,
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
+            headers: { 'ngrok-skip-browser-warning': 'true' }
         });
 
         if (!resposta.ok) {
@@ -148,44 +192,53 @@ btnAnalisar.addEventListener('click', async () => {
         }
 
         const dados = await resposta.json();
-        resultadoContainer.innerHTML = "";
-
-        dados.resultados.forEach(res => {
-            const divItem = document.createElement('div');
-            divItem.classList.add('resultado-item');
-
-            if (res.status === "sucesso") {
-                divItem.classList.add('sucesso');
-                const distanciaFormatada = res.distancia.toFixed(4);
-
-                divItem.innerHTML = `
-                    <strong>✅ Arquivo enviado:</strong> ${res.arquivo} <br>
-                    <strong>Caminho/Identificação:</strong> ${res.caminho_imagem} <br>
-                    <small>Métrica de Distância: ${distanciaFormatada} (Quanto menor, maior a semelhança)</small>
-                `;
-            } else if (res.status === "erro") {
-                divItem.classList.add('erro');
-                divItem.innerHTML = `
-                    <strong>⚠️ Arquivo:</strong> ${res.arquivo} <br>
-                    <strong>Erro:</strong> ${res.mensagem}
-                `;
-            } else {
-                divItem.classList.add('falha');
-                divItem.innerHTML = `
-                    <strong>❓ Arquivo:</strong> ${res.arquivo} <br>
-                    <strong>Resultado:</strong> Rosto não encontrado no banco de dados.
-                `;
-            }
-
-            resultadoContainer.appendChild(divItem);
-        });
+        renderizarResultados(dados, 'cadastrar');
+        
+        // Limpar os campos após o cadastro com sucesso
+        inputNome.value = '';
+        imagensSelecionadas = [];
+        atualizarInterface();
 
     } catch (erro) {
         console.error(erro);
         resultadoContainer.innerHTML = `<p style='color: red; text-align: center;'>❌ Erro: ${erro.message}</p>`;
     } finally {
-        btnAnalisar.disabled = false;
-        btnAnalisar.innerText = "Analisar Imagens";
+        btnCadastrar.innerText = "Cadastrar Rosto";
+        atualizarInterface(); // Reavalia botões baseados nas imagens restantes
+    }
+});
+
+// 4.2 Ação de RECONHECER
+btnAnalisar.addEventListener('click', async () => {
+    btnAnalisar.disabled = true;
+    btnCadastrar.disabled = true;
+    btnAnalisar.innerText = "Processando...";
+    resultadoContainer.innerHTML = "<p style='text-align: center;'>A analisar rostos... aguarde.</p>";
+
+    const formData = new FormData();
+    imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
+
+    try {
+        const resposta = await fetch(`${BASE_URL}/api/reconhecer`, { 
+            method: 'POST', 
+            body: formData,
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        });
+
+        if (!resposta.ok) {
+            const erroJson = await resposta.json().catch(() => null);
+            throw new Error(erroJson?.detail || "Erro na resposta do servidor");
+        }
+
+        const dados = await resposta.json();
+        renderizarResultados(dados, 'reconhecer');
+
+    } catch (erro) {
+        console.error(erro);
+        resultadoContainer.innerHTML = `<p style='color: red; text-align: center;'>❌ Erro: ${erro.message}</p>`;
+    } finally {
+        btnAnalisar.innerText = "Reconhecer Imagens";
+        atualizarInterface(); // Reavalia botões
     }
 });
 
