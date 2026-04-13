@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reconhecimento Facial</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Reconhecimento Facial</h1>
+    <p>Selecione ou tire fotos de até 5 imagens.</p>
+    
+    <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
+    
+    <div class="botoes-container">
+        <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">📁 Escolher Arquivos</button>
+        <button id="btnAbrirCamera" class="btn-estilizado">📷 Usar Câmera</button>
+    </div>
+
+    <div id="cameraContainer">
+        <video id="videoElement" autoplay playsinline></video>
+        <div style="margin-top: 10px;">
+            <button id="btnCapturar">Tirar Foto</button>
+            <button id="btnFecharCamera" class="btn-secundario">Cancelar</button>
+        </div>
+        <canvas id="canvasElement" style="display: none;"></canvas>
+    </div>
+    
+    <div id="previewContainer">
+        <span id="textoPreview">Nenhuma imagem selecionada</span>
+    </div>
+    
+    <button id="btnAnalisar">Analisar Imagens</button>
+
+    <div id="resultado"></div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
