@@ -47,7 +47,7 @@ if (btnAbrirCamera) {
             cameraContainer.style.display = 'block';
             btnAbrirCamera.disabled = true;
         } catch (erro) {
-            alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
+            alert("Erro ao aceder à câmera. Verifique as permissões do navegador.");
             console.error(erro);
         }
     });
@@ -123,7 +123,7 @@ btnAnalisar.addEventListener('click', async () => {
 
     btnAnalisar.disabled = true;
     btnAnalisar.innerText = "Processando...";
-    resultadoContainer.innerHTML = "<p style='text-align: center;'>Analisando rostos... aguarde.</p>";
+    resultadoContainer.innerHTML = "<p style='text-align: center;'>A analisar rostos... aguarde.</p>";
 
     const formData = new FormData();
     
@@ -133,9 +133,13 @@ btnAnalisar.addEventListener('click', async () => {
     });
 
     try {
-        const resposta = await fetch('http://localhost:8000/api/reconhecer', { 
+        // Link atualizado com o URL do Ngrok e o cabeçalho para ignorar o aviso
+        const resposta = await fetch('https://panoramic-figure-mushroom.ngrok-free.dev/api/reconhecer', { 
             method: 'POST', 
-            body: formData 
+            body: formData,
+            headers: {
+                'ngrok-skip-browser-warning': 'true'
+            }
         });
 
         if (!resposta.ok) {
@@ -182,10 +186,6 @@ btnAnalisar.addEventListener('click', async () => {
     } finally {
         btnAnalisar.disabled = false;
         btnAnalisar.innerText = "Analisar Imagens";
-        
-        // Opcional: Limpar as imagens após o envio bem-sucedido
-        // imagensSelecionadas = [];
-        // atualizarInterface();
     }
 });
 
