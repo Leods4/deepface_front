@@ -3,44 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reconhecimento Facial</title>
+    <title>Sistema de Reconhecimento Universal</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Reconhecimento Facial</h1>
-    <p>Selecione ou tire fotos de até 5 imagens para cadastrar ou reconhecer.</p>
-    
-    <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
-    
-    <div class="botoes-container">
-        <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">📁 Escolher Arquivos</button>
-        <button id="btnAbrirCamera" class="btn-estilizado">📷 Usar Câmera</button>
-    </div>
-
-    <div id="cameraContainer">
-        <video id="videoElement" autoplay playsinline></video>
-        <div style="margin-top: 10px;">
-            <button id="btnCapturar">Tirar Foto</button>
-            <button id="btnFecharCamera" class="btn-secundario">Cancelar</button>
+    <div class="main-container">
+        <h1>Reconhecimento Universal</h1>
+        <p class="subtitle">Identifique rostos, tatuagens e objetos. Selecione ou tire fotos de até 5 imagens.</p>
+        
+        <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
+        
+        <div class="botoes-container">
+            <button class="btn-estilizado btn-icon" onclick="document.getElementById('imagemInput').click()">
+                📁 Escolher Arquivos
+            </button>
+            <button id="btnAbrirCamera" class="btn-estilizado btn-icon">
+                📷 Usar Câmera
+            </button>
         </div>
-        <canvas id="canvasElement" style="display: none;"></canvas>
-    </div>
-    
-    <div id="previewContainer">
-        <span id="textoPreview">Nenhuma imagem selecionada</span>
-    </div>
-    
-    <div class="acoes-container">
-        <input type="text" id="inputNome" placeholder="Digite o nome (Apenas para Cadastro)">
-        <div class="botoes-acao">
-            <button id="btnCadastrar" class="btn-cadastrar">Cadastrar Rosto</button>
-            <button id="btnAnalisar" class="btn-analisar">Reconhecer Imagens</button>
-        </div>
-    </div>
 
-    <div id="resultado"></div>
+        <div id="cameraContainer" class="card-hidden">
+            <video id="videoElement" autoplay playsinline></video>
+            <div class="camera-actions">
+                <button id="btnCapturar" class="btn-primario">Tirar Foto</button>
+                <button id="btnFecharCamera" class="btn-secundario">Cancelar</button>
+            </div>
+            <canvas id="canvasElement" style="display: none;"></canvas>
+        </div>
+        
+        <div id="previewContainer">
+            <span id="textoPreview">Nenhuma imagem selecionada</span>
+        </div>
+        
+        <div class="acoes-container">
+            <input type="text" id="inputIdentificador" placeholder="Identificador (ex: Joao_Silva ou Tattoo_Dragao)">
+            <div class="botoes-acao">
+                <button id="btnCadastrar" class="btn-cadastrar">Cadastrar Imagem</button>
+                <button id="btnAnalisar" class="btn-analisar">Reconhecer Imagem</button>
+            </div>
+        </div>
+
+        <div id="resultado"></div>
+    </div>
 
     <script src="script.js"></script>
-
 </body>
 </html>

@@ -6,7 +6,7 @@ const imagemInput = document.getElementById('imagemInput');
 const previewContainer = document.getElementById('previewContainer');
 const btnAnalisar = document.getElementById('btnAnalisar');
 const btnCadastrar = document.getElementById('btnCadastrar');
-const inputNome = document.getElementById('inputNome');
+const inputIdentificador = document.getElementById('inputIdentificador');
 const resultadoContainer = document.getElementById('resultado');
 
 // Elementos da Câmera
@@ -17,7 +17,7 @@ const btnAbrirCamera = document.getElementById('btnAbrirCamera');
 const btnCapturar = document.getElementById('btnCapturar');
 const btnFecharCamera = document.getElementById('btnFecharCamera');
 
-// Estado global: guarda as imagens que serão enviadas
+// Estado global
 let imagensSelecionadas = [];
 let streamDeVideo = null;
 const LIMITE_IMAGENS = 5;
@@ -46,7 +46,7 @@ if (btnAbrirCamera) {
         try {
             streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             videoElement.srcObject = streamDeVideo;
-            cameraContainer.style.display = 'block';
+            cameraContainer.classList.remove('card-hidden');
             btnAbrirCamera.disabled = true;
         } catch (erro) {
             alert("Erro ao aceder à câmera. Verifique as permissões do navegador.");
@@ -63,7 +63,7 @@ function fecharCamera() {
     if (streamDeVideo) {
         streamDeVideo.getTracks().forEach(track => track.stop());
     }
-    cameraContainer.style.display = 'none';
+    cameraContainer.classList.add('card-hidden');
     btnAbrirCamera.disabled = false;
 }
 
@@ -120,8 +120,7 @@ function atualizarInterface() {
 
 // --- 4. COMUNICAÇÃO COM A API ---
 
-// Função genérica para tratar os cards de resultado
-function renderizarResultados(dados, tipo) {
+function renderizarResultados(dados, acao) {
     resultadoContainer.innerHTML = "";
     dados.resultados.forEach(res => {
         const divItem = document.createElement('div');
@@ -129,31 +128,40 @@ function renderizarResultados(dados, tipo) {
 
         if (res.status === "sucesso") {
             divItem.classList.add('sucesso');
-            if (tipo === 'reconhecer') {
-                const distanciaFormatada = res.distancia.toFixed(4);
+            if (acao === 'reconhecer') {
+                // Formatação condicional baseada no tipo (rosto vs objeto geral)
+                const icone = res.tipo === 'rosto' ? '👤 Rosto' : '🖼️ Objeto/Tattoo';
+                const metrica = res.tipo === 'rosto' 
+                    ? `Distância Facial: <strong>${res.distancia.toFixed(4)}</strong>`
+                    : `Similaridade Visual: <strong>${(res.similaridade * 100).toFixed(1)}%</strong>`;
+
                 divItem.innerHTML = `
-                    <strong>✅ Arquivo enviado:</strong> ${res.arquivo} <br>
-                    <strong>Identificação:</strong> ${res.caminho_imagem} <br>
-                    <small>Distância (Confiança): ${distanciaFormatada}</small>
+                    <div class="resultado-header">✅ ${icone} Identificado</div>
+                    <strong>Arquivo:</strong> ${res.arquivo} <br>
+                    <strong>Registro Encontrado:</strong> <span class="highlight-text">${res.caminho_imagem}</span> <br>
+                    <small>${metrica}</small>
                 `;
             } else {
-                // Cadastro
                 divItem.innerHTML = `
-                    <strong>✅ Arquivo cadastrado:</strong> ${res.arquivo} <br>
+                    <div class="resultado-header">✅ Cadastro Concluído</div>
+                    <strong>Arquivo:</strong> ${res.arquivo} <br>
                     <strong>Status:</strong> ${res.mensagem}
                 `;
             }
         } else if (res.status === "erro") {
             divItem.classList.add('erro');
             divItem.innerHTML = `
-                <strong>⚠️ Arquivo:</strong> ${res.arquivo} <br>
-                <strong>Erro:</strong> ${res.mensagem}
+                <div class="resultado-header">⚠️ Erro</div>
+                <strong>Arquivo:</strong> ${res.arquivo} <br>
+                <strong>Detalhe:</strong> ${res.mensagem}
             `;
         } else {
             divItem.classList.add('falha');
+            const razao = res.mensagem || "Nenhuma correspondência encontrada no banco de dados.";
             divItem.innerHTML = `
-                <strong>❓ Arquivo:</strong> ${res.arquivo} <br>
-                <strong>Resultado:</strong> Rosto não encontrado no banco de dados.
+                <div class="resultado-header">❓ Não Reconhecido</div>
+                <strong>Arquivo:</strong> ${res.arquivo} <br>
+                <strong>Resultado:</strong> ${razao}
             `;
         }
 
@@ -163,20 +171,20 @@ function renderizarResultados(dados, tipo) {
 
 // 4.1 Ação de CADASTRAR
 btnCadastrar.addEventListener('click', async () => {
-    const nome = inputNome.value.trim();
-    if (!nome) {
-        resultadoContainer.innerHTML = "<p style='color: red; text-align: center;'>Por favor, digite um nome para cadastrar!</p>";
-        inputNome.focus();
+    const identificador = inputIdentificador.value.trim();
+    if (!identificador) {
+        resultadoContainer.innerHTML = "<p style='color: #dc3545; text-align: center; font-weight: bold;'>Por favor, digite um identificador para cadastrar!</p>";
+        inputIdentificador.focus();
         return;
     }
 
     btnCadastrar.disabled = true;
     btnAnalisar.disabled = true;
     btnCadastrar.innerText = "Cadastrando...";
-    resultadoContainer.innerHTML = "<p style='text-align: center;'>A cadastrar rosto(s)... aguarde.</p>";
+    resultadoContainer.innerHTML = "<p class='loading-text'>A cadastrar imagem(ns)... aguarde.</p>";
 
     const formData = new FormData();
-    formData.append('nome', nome);
+    formData.append('identificador', identificador); // Alterado para bater com o novo Backend
     imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
 
     try {
@@ -194,17 +202,16 @@ btnCadastrar.addEventListener('click', async () => {
         const dados = await resposta.json();
         renderizarResultados(dados, 'cadastrar');
         
-        // Limpar os campos após o cadastro com sucesso
-        inputNome.value = '';
+        inputIdentificador.value = '';
         imagensSelecionadas = [];
         atualizarInterface();
 
     } catch (erro) {
         console.error(erro);
-        resultadoContainer.innerHTML = `<p style='color: red; text-align: center;'>❌ Erro: ${erro.message}</p>`;
+        resultadoContainer.innerHTML = `<div class="resultado-item erro">❌ Erro de conexão: ${erro.message}</div>`;
     } finally {
-        btnCadastrar.innerText = "Cadastrar Rosto";
-        atualizarInterface(); // Reavalia botões baseados nas imagens restantes
+        btnCadastrar.innerText = "Cadastrar Imagem";
+        atualizarInterface(); 
     }
 });
 
@@ -213,7 +220,7 @@ btnAnalisar.addEventListener('click', async () => {
     btnAnalisar.disabled = true;
     btnCadastrar.disabled = true;
     btnAnalisar.innerText = "Processando...";
-    resultadoContainer.innerHTML = "<p style='text-align: center;'>A analisar rostos... aguarde.</p>";
+    resultadoContainer.innerHTML = "<p class='loading-text'>A analisar imagem(ns)... aguarde.</p>";
 
     const formData = new FormData();
     imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
@@ -235,10 +242,10 @@ btnAnalisar.addEventListener('click', async () => {
 
     } catch (erro) {
         console.error(erro);
-        resultadoContainer.innerHTML = `<p style='color: red; text-align: center;'>❌ Erro: ${erro.message}</p>`;
+        resultadoContainer.innerHTML = `<div class="resultado-item erro">❌ Erro de conexão: ${erro.message}</div>`;
     } finally {
-        btnAnalisar.innerText = "Reconhecer Imagens";
-        atualizarInterface(); // Reavalia botões
+        btnAnalisar.innerText = "Reconhecer Imagem";
+        atualizarInterface(); 
     }
 });
 
