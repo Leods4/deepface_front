@@ -3,21 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Reconhecimento Universal</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Sistema Biométrico Multimodal</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #007BFF;
+            --primary-hover: #0056b3;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --info-color: #17a2b8;
+            --info-hover: #138496;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-container {
+            background-color: var(--card-bg);
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        .seletor-container {
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .seletor-container label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        #selectTipo {
+            padding: 8px 14px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .botoes-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        #previewContainer {
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center;
+            align-items: center;
+            gap: 15px; 
+            border: 2px dashed #b0bec5;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        #textoPreview {
+            color: #90a4ae;
+            font-size: 14px;
+        }
+
+        .preview-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid white;
+        }
+
+        .btn-remover {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .btn-remover:hover {
+            transform: scale(1.1);
+            background-color: #c0392b;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #cccccc !important;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-estilizado, .btn-primario {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-estilizado:hover, .btn-primario:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secundario {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secundario:hover {
+            background-color: #7f8c8d;
+        }
+
+        .acoes-container {
+            margin: 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        #inputIdentificador {
+            padding: 14px;
+            font-size: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            width: 90%;
+            max-width: 350px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #inputIdentificador:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .botoes-acao {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-cadastrar {
+            background-color: var(--success-color);
+            color: white;
+            flex: 1;
+            min-width: 160px;
+            max-width: 200px;
+        }
+
+        .btn-cadastrar:hover:not(:disabled) {
+            background-color: var(--success-hover);
+        }
+
+        .btn-analisar {
+            background-color: var(--info-color);
+            color: white;
+            flex: 1;
+            min-width: 160px;
+            max-width: 200px;
+        }
+
+        .btn-analisar:hover:not(:disabled) {
+            background-color: var(--info-hover);
+        }
+
+        .card-hidden {
+            display: none !important;
+        }
+
+        #cameraContainer {
+            margin: 20px auto;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        #videoElement {
+            width: 100%;
+            max-width: 450px;
+            border-radius: 8px;
+            background-color: #000;
+        }
+
+        .camera-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        #resultado {
+            margin-top: 25px;
+            text-align: left; 
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .resultado-item {
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .resultado-header {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .highlight-text {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .sucesso { 
+            background-color: #f2fdf4; 
+            border-left: 6px solid var(--success-color); 
+        }
+
+        .sucesso .resultado-header { color: var(--success-color); }
+
+        .falha { 
+            background-color: #fffcf2; 
+            border-left: 6px solid #ffc107; 
+        }
+
+        .falha .resultado-header { color: #d39e00; }
+
+        .erro { 
+            background-color: #fff5f5; 
+            border-left: 6px solid #e74c3c; 
+        }
+
+        .erro .resultado-header { color: #c0392b; }
+    </style>
 </head>
 <body>
     <div class="main-container">
-        <h1>Reconhecimento Universal</h1>
-        <p class="subtitle">Identifique rostos, tatuagens e objetos. Selecione ou tire fotos de até 5 imagens.</p>
+        <h1>Reconhecimento Biométrico</h1>
+        <p class="subtitle">Cadastre e identifique rostos ou tatuagens. Selecione ou tire fotos de até 5 imagens.</p>
         
+        <div class="seletor-container">
+            <label for="selectTipo">Tipo de Elemento:</label>
+            <select id="selectTipo">
+                <option value="rosto">👤 Rosto Humano</option>
+                <option value="tatuagem">🎨 Tatuagem / Padrão</option>
+            </select>
+        </div>
+
         <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
         
         <div class="botoes-container">
-            <button class="btn-estilizado btn-icon" onclick="document.getElementById('imagemInput').click()">
+            <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">
                 📁 Escolher Arquivos
             </button>
-            <button id="btnAbrirCamera" class="btn-estilizado btn-icon">
+            <button id="btnAbrirCamera" class="btn-estilizado">
                 📷 Usar Câmera
             </button>
         </div>
@@ -36,7 +376,7 @@
         </div>
         
         <div class="acoes-container">
-            <input type="text" id="inputIdentificador" placeholder="Identificador (ex: Joao_Silva ou Tattoo_Dragao)">
+            <input type="text" id="inputIdentificador" placeholder="Nome do usuário (ex: Joao_Silva)">
             <div class="botoes-acao">
                 <button id="btnCadastrar" class="btn-cadastrar">Cadastrar Imagem</button>
                 <button id="btnAnalisar" class="btn-analisar">Reconhecer Imagem</button>
@@ -46,6 +386,247 @@
         <div id="resultado"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const BASE_URL = 'https://panoramic-figure-mushroom.ngrok-free.dev';
+
+        const imagemInput = document.getElementById('imagemInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const btnAnalisar = document.getElementById('btnAnalisar');
+        const btnCadastrar = document.getElementById('btnCadastrar');
+        const inputIdentificador = document.getElementById('inputIdentificador');
+        const resultadoContainer = document.getElementById('resultado');
+        const selectTipo = document.getElementById('selectTipo');
+
+        const cameraContainer = document.getElementById('cameraContainer');
+        const videoElement = document.getElementById('videoElement');
+        const canvasElement = document.getElementById('canvasElement');
+        const btnAbrirCamera = document.getElementById('btnAbrirCamera');
+        const btnCapturar = document.getElementById('btnCapturar');
+        const btnFecharCamera = document.getElementById('btnFecharCamera');
+
+        let imagensSelecionadas = [];
+        let streamDeVideo = null;
+        const LIMITE_IMAGENS = 5;
+
+        imagemInput.addEventListener('change', (evento) => {
+            const arquivos = Array.from(evento.target.files);
+            adicionarImagens(arquivos);
+            imagemInput.value = ''; 
+        });
+
+        function adicionarImagens(novosArquivos) {
+            if (imagensSelecionadas.length + novosArquivos.length > LIMITE_IMAGENS) {
+                alert(`Você só pode enviar até ${LIMITE_IMAGENS} imagens no total.`);
+                const vagasRestantes = LIMITE_IMAGENS - imagensSelecionadas.length;
+                novosArquivos = novosArquivos.slice(0, vagasRestantes);
+            }
+            imagensSelecionadas = [...imagensSelecionadas, ...novosArquivos];
+            atualizarInterface();
+        }
+
+        if (btnAbrirCamera) {
+            btnAbrirCamera.addEventListener('click', async () => {
+                try {
+                    streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                    videoElement.srcObject = streamDeVideo;
+                    cameraContainer.classList.remove('card-hidden');
+                    btnAbrirCamera.disabled = true;
+                } catch (erro) {
+                    alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
+                    console.error(erro);
+                }
+            });
+        }
+
+        if (btnFecharCamera) {
+            btnFecharCamera.addEventListener('click', fecharCamera);
+        }
+
+        function fecharCamera() {
+            if (streamDeVideo) {
+                streamDeVideo.getTracks().forEach(track => track.stop());
+            }
+            cameraContainer.classList.add('card-hidden');
+            btnAbrirCamera.disabled = false;
+        }
+
+        if (btnCapturar) {
+            btnCapturar.addEventListener('click', () => {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                const contexto = canvasElement.getContext('2d');
+                contexto.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+                
+                canvasElement.toBlob((blob) => {
+                    const arquivoCamera = new File([blob], `foto_camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                    adicionarImagens([arquivoCamera]);
+                    fecharCamera();
+                }, 'image/jpeg', 0.9);
+            });
+        }
+
+        function atualizarInterface() {
+            if (imagensSelecionadas.length === 0) {
+                previewContainer.innerHTML = '<span id="textoPreview">Nenhuma imagem selecionada</span>';
+                btnAnalisar.disabled = true;
+                btnCadastrar.disabled = true;
+                return;
+            }
+
+            btnAnalisar.disabled = false;
+            btnCadastrar.disabled = false;
+            previewContainer.innerHTML = ''; 
+            
+            imagensSelecionadas.forEach((arquivo, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'preview-wrapper';
+
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(arquivo);
+                img.className = 'preview-img';
+
+                const btnRemover = document.createElement('button');
+                btnRemover.innerHTML = '✕';
+                btnRemover.className = 'btn-remover';
+                btnRemover.onclick = () => {
+                    imagensSelecionadas.splice(index, 1);
+                    atualizarInterface();
+                };
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(btnRemover);
+                previewContainer.appendChild(wrapper);
+            });
+        }
+
+        function renderizarResultados(dados, acao) {
+            resultadoContainer.innerHTML = "";
+            dados.resultados.forEach(res => {
+                const divItem = document.createElement('div');
+                divItem.classList.add('resultado-item');
+
+                if (res.status === "sucesso") {
+                    divItem.classList.add('sucesso');
+                    if (acao === 'reconhecer') {
+                        divItem.innerHTML = `
+                            <div class="resultado-header">✅ Elemento Identificado</div>
+                            <strong>Arquivo:</strong> ${res.arquivo} <br>
+                            <strong>Usuário Correspondente:</strong> <span class="highlight-text">${res.nome_identificado}</span> <br>
+                            <small>Métrica de Distância: <strong>${res.distancia.toFixed(4)}</strong> (valores menores indicam maior confiança)</small>
+                        `;
+                    } else {
+                        divItem.innerHTML = `
+                            <div class="resultado-header">✅ Cadastro Concluído</div>
+                            <strong>Arquivo:</strong> ${res.arquivo} <br>
+                            <strong>Status:</strong> ${res.mensagem}
+                        `;
+                    }
+                } else if (res.status === "erro") {
+                    divItem.classList.add('erro');
+                    divItem.innerHTML = `
+                        <div class="resultado-header">⚠️ Erro Operacional</div>
+                        <strong>Arquivo:</strong> ${res.arquivo} <br>
+                        <strong>Detalhe:</strong> ${res.mensagem}
+                    `;
+                } else {
+                    divItem.classList.add('falha');
+                    const razao = res.mensagem || "Nenhuma correspondência biométrica encontrada.";
+                    divItem.innerHTML = `
+                        <div class="resultado-header">❓ Desconhecido</div>
+                        <strong>Arquivo:</strong> ${res.arquivo} <br>
+                        <strong>Resultado:</strong> ${razao}
+                    `;
+                }
+
+                resultadoContainer.appendChild(divItem);
+            });
+        }
+
+        btnCadastrar.addEventListener('click', async () => {
+            const identificador = inputIdentificador.value.trim();
+            if (!identificador) {
+                alert("Por favor, digite um nome para cadastrar!");
+                inputIdentificador.focus();
+                return;
+            }
+
+            const tipo = selectTipo.value;
+            const endpoint = tipo === 'rosto' ? '/api/cadastrar' : '/api/cadastrar-tatuagem';
+
+            btnCadastrar.disabled = true;
+            btnAnalisar.disabled = true;
+            btnCadastrar.innerText = "Cadastrando...";
+            resultadoContainer.innerHTML = `<p class='loading-text'>Cadastrando elemento (${tipo})... por favor, aguarde.</p>`;
+
+            const formData = new FormData();
+            formData.append('nome', identificador);
+            imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
+
+            try {
+                const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
+                    method: 'POST', 
+                    body: formData,
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+
+                if (!resposta.ok) {
+                    const erroJson = await resposta.json().catch(() => null);
+                    throw new Error(erroJson?.detail || "Erro na resposta do servidor");
+                }
+
+                const dados = await resposta.json();
+                renderizarResultados(dados, 'cadastrar');
+                
+                inputIdentificador.value = '';
+                imagensSelecionadas = [];
+                atualizarInterface();
+
+            } catch (erro) {
+                console.error(erro);
+                resultadoContainer.innerHTML = `<div class="resultado-item erro">❌ Erro de conexão: ${erro.message}</div>`;
+            } finally {
+                btnCadastrar.innerText = "Cadastrar Imagem";
+                atualizarInterface(); 
+            }
+        });
+
+        btnAnalisar.addEventListener('click', async () => {
+            const tipo = selectTipo.value;
+            const endpoint = tipo === 'rosto' ? '/api/reconhecer' : '/api/reconhecer-tatuagem';
+
+            btnAnalisar.disabled = true;
+            btnCadastrar.disabled = true;
+            btnAnalisar.innerText = "Processando...";
+            resultadoContainer.innerHTML = `<p class='loading-text'>Analisando características de ${tipo}... aguarde.</p>`;
+
+            const formData = new FormData();
+            imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
+
+            try {
+                const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
+                    method: 'POST', 
+                    body: formData,
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+
+                if (!resposta.ok) {
+                    const erroJson = await resposta.json().catch(() => null);
+                    throw new Error(erroJson?.detail || "Erro na resposta do servidor");
+                }
+
+                const dados = await resposta.json();
+                renderizarResultados(dados, 'reconhecer');
+
+            } catch (erro) {
+                console.error(erro);
+                resultadoContainer.innerHTML = `<div class="resultado-item erro">❌ Erro de conexão: ${erro.message}</div>`;
+            } finally {
+                btnAnalisar.innerText = "Reconhecer Imagem";
+                atualizarInterface(); 
+            }
+        });
+
+        atualizarInterface();
+    </script>
 </body>
 </html>
