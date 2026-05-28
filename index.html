@@ -427,7 +427,7 @@
         if (btnAbrirCamera) {
             btnAbrirCamera.addEventListener('click', async () => {
                 try {
-                    streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                    streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     videoElement.srcObject = streamDeVideo;
                     cameraContainer.classList.remove('card-hidden');
                     btnAbrirCamera.disabled = true;
