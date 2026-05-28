@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Biométrico Multimodal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <style>
         :root {
             --bg-color: #f4f7f6;
@@ -336,6 +337,61 @@
         }
 
         .erro .resultado-header { color: #c0392b; }
+
+        /* Estilos da Janela Modal de Recorte */
+        .cropper-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .cropper-modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 550px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .cropper-modal-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+            text-align: left;
+        }
+
+        .cropper-area-wrapper {
+            width: 100%;
+            height: 320px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+
+        .cropper-area-wrapper img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .cropper-modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
     </style>
 </head>
 <body>
@@ -386,6 +442,23 @@
         <div id="resultado"></div>
     </div>
 
+    <div id="cropperModal" class="cropper-modal-overlay">
+        <div class="cropper-modal-content">
+            <p class="cropper-modal-header">Recortar Região de Interesse</p>
+            <small style="color: #7f8c8d; text-align: left; margin-top: -10px;">
+                Isole a tatuagem ou o rosto eliminando o fundo para melhor assertividade do algoritmo.
+            </small>
+            <div class="cropper-area-wrapper">
+                <img id="cropperImage" src="" alt="Imagem para recortar">
+            </div>
+            <div class="cropper-modal-actions">
+                <button id="btnCancelarRecorte" class="btn-secundario" style="padding: 10px 16px; font-size: 14px;">Ignorar / Cancelar</button>
+                <button id="btnConfirmarRecorte" class="btn-primario" style="padding: 10px 16px; font-size: 14px;">Confirmar Recorte</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script>
         const BASE_URL = 'https://panoramic-figure-mushroom.ngrok-free.dev';
 
@@ -404,29 +477,107 @@
         const btnCapturar = document.getElementById('btnCapturar');
         const btnFecharCamera = document.getElementById('btnFecharCamera');
 
+        // Elementos do Modal de Recorte
+        const cropperModal = document.getElementById('cropperModal');
+        const cropperImage = document.getElementById('cropperImage');
+        const btnCancelarRecorte = document.getElementById('btnCancelarRecorte');
+        const btnConfirmarRecorte = document.getElementById('btnConfirmarRecorte');
+
         let imagensSelecionadas = [];
+        let filaArquivosParaCortar = []; // Fila temporária para processar cortes em lote
+        let arquivoAtualSendoCortado = null;
+        let cropperInstance = null;
         let streamDeVideo = null;
         const LIMITE_IMAGENS = 5;
 
         imagemInput.addEventListener('change', (evento) => {
             const arquivos = Array.from(evento.target.files);
-            adicionarImagens(arquivos);
+            adicionarImagensFila(arquivos);
             imagemInput.value = ''; 
         });
 
-        function adicionarImagens(novosArquivos) {
+        // Adiciona os novos arquivos brutos à fila de edição por recorte
+        function adicionarImagensFila(novosArquivos) {
             if (imagensSelecionadas.length + novosArquivos.length > LIMITE_IMAGENS) {
                 alert(`Você só pode enviar até ${LIMITE_IMAGENS} imagens no total.`);
                 const vagasRestantes = LIMITE_IMAGENS - imagensSelecionadas.length;
                 novosArquivos = novosArquivos.slice(0, vagasRestantes);
             }
-            imagensSelecionadas = [...imagensSelecionadas, ...novosArquivos];
-            atualizarInterface();
+            filaArquivosParaCortar = [...filaArquivosParaCortar, ...novosArquivos];
+            processarProximaImagemFila();
+        }
+
+        // Controla a abertura sequencial do modal de recorte se o usuário escolher múltiplos arquivos
+        function processarProximaImagemFila() {
+            if (filaArquivosParaCortar.length === 0) return;
+
+            if (imagensSelecionadas.length >= LIMITE_IMAGENS) {
+                filaArquivosParaCortar = [];
+                return;
+            }
+
+            arquivoAtualSendoCortado = filaArquivosParaCortar.shift();
+            const urlTemporaria = URL.createObjectURL(arquivoAtualSendoCortado);
+            
+            cropperImage.onload = () => {
+                if (cropperInstance) cropperInstance.destroy();
+                
+                cropperInstance = new Cropper(cropperImage, {
+                    viewMode: 1,
+                    autoCropArea: 0.85,
+                    responsive: true,
+                    restore: false,
+                    checkCrossOrigin: false,
+                    aspectRatio: NaN // Permite corte livre retangular/quadrado adaptável
+                });
+            };
+
+            cropperImage.src = urlTemporaria;
+            cropperModal.style.display = 'flex';
+        }
+
+        btnConfirmarRecorte.addEventListener('click', () => {
+            if (!cropperInstance) return;
+
+            // Gera o canvas da área selecionada limitando a resolução máxima para otimizar o payload
+            const canvasCortado = cropperInstance.getCroppedCanvas({
+                maxWidth: 1024,
+                maxHeight: 1024
+            });
+
+            canvasCortado.toBlob((blob) => {
+                const nomeFinal = `recortado_${Date.now()}_${arquivoAtualSendoCortado.name || 'foto.jpg'}`;
+                const arquivoRecortado = new File([blob], nomeFinal, { type: 'image/jpeg' });
+                
+                imagensSelecionadas.push(arquivoRecortado);
+                atualizarInterface();
+                fecharModalRecorte();
+                processarProximaImagemFila(); // Passa para a próxima imagem da fila se houver
+            }, 'image/jpeg', 0.9);
+        });
+
+        btnCancelarRecorte.addEventListener('click', () => {
+            fecharModalRecorte();
+            processarProximaImagemFila();
+        });
+
+        function fecharModalRecorte() {
+            cropperModal.style.display = 'none';
+            if (cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+            if (cropperImage.src) {
+                URL.revokeObjectURL(cropperImage.src);
+                cropperImage.src = '';
+            }
+            arquivoAtualSendoCortado = null;
         }
 
         if (btnAbrirCamera) {
             btnAbrirCamera.addEventListener('click', async () => {
                 try {
+                    // Configuração mantida para câmera traseira (environment)
                     streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     videoElement.srcObject = streamDeVideo;
                     cameraContainer.classList.remove('card-hidden');
@@ -459,7 +610,7 @@
                 
                 canvasElement.toBlob((blob) => {
                     const arquivoCamera = new File([blob], `foto_camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-                    adicionarImagens([arquivoCamera]);
+                    adicionarImagensFila([arquivoCamera]);
                     fecharCamera();
                 }, 'image/jpeg', 0.9);
             });
