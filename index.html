@@ -1,13 +1,3 @@
-Com certeza! Usar o ngrok é excelente para expor a API local para a internet ou para testar em outros dispositivos (como o celular).
-
-Para manter a compatibilidade total com o ngrok, precisamos fazer duas coisas:
-
-1. Retornar a `BASE_URL` para o formato do link do ngrok.
-2. **(Muito importante)** Devolver o cabeçalho `ngrok-skip-browser-warning: 'true'` nas requisições `fetch`. Sem isso, o ngrok intercepta chamadas via navegador e retorna uma página HTML de aviso ao invés do JSON da sua API, quebrando a aplicação.
-
-Aqui está o código atualizado, mantendo todas as validações (regex de nome, trava de limite de imagens, formatos aceitos e interface de threshold) mas pronto para o ngrok:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -800,5 +790,3 @@ Aqui está o código atualizado, mantendo todas as validações (regex de nome, 
     </script>
 </body>
 </html>
-
-```
