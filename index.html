@@ -1,3 +1,13 @@
+Com certeza! Usar o ngrok é excelente para expor a API local para a internet ou para testar em outros dispositivos (como o celular).
+
+Para manter a compatibilidade total com o ngrok, precisamos fazer duas coisas:
+
+1. Retornar a `BASE_URL` para o formato do link do ngrok.
+2. **(Muito importante)** Devolver o cabeçalho `ngrok-skip-browser-warning: 'true'` nas requisições `fetch`. Sem isso, o ngrok intercepta chamadas via navegador e retorna uma página HTML de aviso ao invés do JSON da sua API, quebrando a aplicação.
+
+Aqui está o código atualizado, mantendo todas as validações (regex de nome, trava de limite de imagens, formatos aceitos e interface de threshold) mas pronto para o ngrok:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -397,7 +407,7 @@
 <body>
     <div class="main-container">
         <h1>Reconhecimento Biométrico</h1>
-        <p class="subtitle">Cadastre e identifique rostos ou tatuagens. Selecione ou tire fotos de até 5 imagens.</p>
+        <p class="subtitle">Cadastre e identifique rostos ou tatuagens. Selecione ou tire fotos de até 5 imagens (JPG, PNG).</p>
         
         <div class="seletor-container">
             <label for="selectTipo">Tipo de Elemento:</label>
@@ -407,7 +417,7 @@
             </select>
         </div>
 
-        <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
+        <input type="file" id="imagemInput" accept=".jpg, .jpeg, .png" multiple style="display: none;">
         
         <div class="botoes-container">
             <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">
@@ -432,7 +442,7 @@
         </div>
         
         <div class="acoes-container">
-            <input type="text" id="inputIdentificador" placeholder="Nome do usuário (ex: Joao_Silva)">
+            <input type="text" id="inputIdentificador" placeholder="Nome sem espaços (ex: joao_silva)">
             <div class="botoes-acao">
                 <button id="btnCadastrar" class="btn-cadastrar">Cadastrar Imagem</button>
                 <button id="btnAnalisar" class="btn-analisar">Reconhecer Imagem</button>
@@ -460,6 +470,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <script>
+        // Mantenha seu link ngrok aqui
         const BASE_URL = 'https://panoramic-figure-mushroom.ngrok-free.dev';
 
         const imagemInput = document.getElementById('imagemInput');
@@ -477,29 +488,34 @@
         const btnCapturar = document.getElementById('btnCapturar');
         const btnFecharCamera = document.getElementById('btnFecharCamera');
 
-        // Elementos do Modal de Recorte
         const cropperModal = document.getElementById('cropperModal');
         const cropperImage = document.getElementById('cropperImage');
         const btnCancelarRecorte = document.getElementById('btnCancelarRecorte');
         const btnConfirmarRecorte = document.getElementById('btnConfirmarRecorte');
 
         let imagensSelecionadas = [];
-        let filaArquivosParaCortar = []; // Fila temporária para processar cortes em lote
+        let filaArquivosParaCortar = [];
         let arquivoAtualSendoCortado = null;
         let cropperInstance = null;
         let streamDeVideo = null;
         const LIMITE_IMAGENS = 5;
 
         imagemInput.addEventListener('change', (evento) => {
-            const arquivos = Array.from(evento.target.files);
-            adicionarImagensFila(arquivos);
+            const arquivosPermitidos = Array.from(evento.target.files).filter(file => 
+                ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)
+            );
+            
+            if (arquivosPermitidos.length < evento.target.files.length) {
+                alert("Alguns arquivos foram ignorados. Envie apenas formatos JPG, JPEG ou PNG.");
+            }
+
+            adicionarImagensFila(arquivosPermitidos);
             imagemInput.value = ''; 
         });
 
-        // Adiciona os novos arquivos brutos à fila de edição por recorte
         function adicionarImagensFila(novosArquivos) {
             if (imagensSelecionadas.length + novosArquivos.length > LIMITE_IMAGENS) {
-                alert(`Você só pode enviar até ${LIMITE_IMAGENS} imagens no total.`);
+                alert(`Conforme documentação da API, o limite é de ${LIMITE_IMAGENS} imagens por requisição.`);
                 const vagasRestantes = LIMITE_IMAGENS - imagensSelecionadas.length;
                 novosArquivos = novosArquivos.slice(0, vagasRestantes);
             }
@@ -507,7 +523,6 @@
             processarProximaImagemFila();
         }
 
-        // Controla a abertura sequencial do modal de recorte se o usuário escolher múltiplos arquivos
         function processarProximaImagemFila() {
             if (filaArquivosParaCortar.length === 0) return;
 
@@ -528,7 +543,7 @@
                     responsive: true,
                     restore: false,
                     checkCrossOrigin: false,
-                    aspectRatio: NaN // Permite corte livre retangular/quadrado adaptável
+                    aspectRatio: NaN
                 });
             };
 
@@ -539,7 +554,6 @@
         btnConfirmarRecorte.addEventListener('click', () => {
             if (!cropperInstance) return;
 
-            // Gera o canvas da área selecionada limitando a resolução máxima para otimizar o payload
             const canvasCortado = cropperInstance.getCroppedCanvas({
                 maxWidth: 1024,
                 maxHeight: 1024
@@ -552,7 +566,7 @@
                 imagensSelecionadas.push(arquivoRecortado);
                 atualizarInterface();
                 fecharModalRecorte();
-                processarProximaImagemFila(); // Passa para a próxima imagem da fila se houver
+                processarProximaImagemFila();
             }, 'image/jpeg', 0.9);
         });
 
@@ -577,7 +591,6 @@
         if (btnAbrirCamera) {
             btnAbrirCamera.addEventListener('click', async () => {
                 try {
-                    // Configuração mantida para câmera traseira (environment)
                     streamDeVideo = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                     videoElement.srcObject = streamDeVideo;
                     cameraContainer.classList.remove('card-hidden');
@@ -652,6 +665,9 @@
 
         function renderizarResultados(dados, acao) {
             resultadoContainer.innerHTML = "";
+            const tipoSelecionado = selectTipo.value;
+            const limiteDistancia = tipoSelecionado === 'rosto' ? '0.68' : '0.40';
+
             dados.resultados.forEach(res => {
                 const divItem = document.createElement('div');
                 divItem.classList.add('resultado-item');
@@ -663,13 +679,13 @@
                             <div class="resultado-header">✅ Elemento Identificado</div>
                             <strong>Arquivo:</strong> ${res.arquivo} <br>
                             <strong>Usuário Correspondente:</strong> <span class="highlight-text">${res.nome_identificado}</span> <br>
-                            <small>Métrica de Distância: <strong>${res.distancia.toFixed(4)}</strong> (valores menores indicam maior confiança)</small>
+                            <small>Métrica de Distância: <strong>${res.distancia.toFixed(4)}</strong> (Limiar da API: ${limiteDistancia})</small>
                         `;
                     } else {
                         divItem.innerHTML = `
                             <div class="resultado-header">✅ Cadastro Concluído</div>
                             <strong>Arquivo:</strong> ${res.arquivo} <br>
-                            <strong>Status:</strong> ${res.mensagem}
+                            <strong>Status:</strong> ${res.mensagem || 'Salvo no banco de dados com sucesso.'}
                         `;
                     }
                 } else if (res.status === "erro") {
@@ -681,9 +697,9 @@
                     `;
                 } else {
                     divItem.classList.add('falha');
-                    const razao = res.mensagem || "Nenhuma correspondência biométrica encontrada.";
+                    const razao = res.mensagem || "Sem correspondência no banco vetorial.";
                     divItem.innerHTML = `
-                        <div class="resultado-header">❓ Desconhecido</div>
+                        <div class="resultado-header">❓ Não Reconhecido</div>
                         <strong>Arquivo:</strong> ${res.arquivo} <br>
                         <strong>Resultado:</strong> ${razao}
                     `;
@@ -695,8 +711,9 @@
 
         btnCadastrar.addEventListener('click', async () => {
             const identificador = inputIdentificador.value.trim();
-            if (!identificador) {
-                alert("Por favor, digite um nome para cadastrar!");
+            
+            if (!identificador || !/^[a-zA-Z0-9_]+$/.test(identificador)) {
+                alert("Por favor, digite um nome válido (apenas letras, números e underscores, sem espaços)!");
                 inputIdentificador.focus();
                 return;
             }
@@ -714,6 +731,7 @@
             imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
 
             try {
+                // Header ngrok-skip-browser-warning readicionado para evitar bloqueio do ngrok
                 const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
                     method: 'POST', 
                     body: formData,
@@ -722,7 +740,7 @@
 
                 if (!resposta.ok) {
                     const erroJson = await resposta.json().catch(() => null);
-                    throw new Error(erroJson?.detail || "Erro na resposta do servidor");
+                    throw new Error(erroJson?.detail || `Erro HTTP ${resposta.status}`);
                 }
 
                 const dados = await resposta.json();
@@ -748,12 +766,13 @@
             btnAnalisar.disabled = true;
             btnCadastrar.disabled = true;
             btnAnalisar.innerText = "Processando...";
-            resultadoContainer.innerHTML = `<p class='loading-text'>Analisando características de ${tipo}... aguarde.</p>`;
+            resultadoContainer.innerHTML = `<p class='loading-text'>Analisando características de ${tipo} no ChromaDB... aguarde.</p>`;
 
             const formData = new FormData();
             imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
 
             try {
+                // Header ngrok-skip-browser-warning readicionado para evitar bloqueio do ngrok
                 const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
                     method: 'POST', 
                     body: formData,
@@ -762,7 +781,7 @@
 
                 if (!resposta.ok) {
                     const erroJson = await resposta.json().catch(() => null);
-                    throw new Error(erroJson?.detail || "Erro na resposta do servidor");
+                    throw new Error(erroJson?.detail || `Erro HTTP ${resposta.status}`);
                 }
 
                 const dados = await resposta.json();
@@ -781,3 +800,5 @@
     </script>
 </body>
 </html>
+
+```
