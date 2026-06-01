@@ -4,322 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Biométrico Multimodal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
     <style>
         :root {
-            /* Paleta de Cores Moderna */
-            --bg-gradient: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-            --card-bg: rgba(255, 255, 255, 0.98);
-            --primary-color: #3b82f6; /* Azul moderno */
-            --primary-hover: #2563eb;
-            --success-color: #10b981; /* Verde esmeralda */
-            --success-hover: #059669;
-            --analyze-color: #8b5cf6; /* Roxo vibrante para análise */
-            --analyze-hover: #7c3aed;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #cbd5e1;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
-            --shadow-hover: 0 14px 45px -10px rgba(0,0,0,0.12);
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary-color: #007BFF;
+            --primary-hover: #0056b3;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --info-color: #17a2b8;
+            --info-hover: #138496;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
-            padding: 30px 15px;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
-            box-sizing: border-box;
         }
 
         .main-container {
             background-color: var(--card-bg);
-            max-width: 750px;
+            max-width: 700px;
             width: 100%;
-            padding: 40px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-soft);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.5);
         }
 
         h1 {
             margin-top: 0;
-            color: #0f172a;
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            color: #2c3e50;
+            font-size: 24px;
         }
 
         .subtitle {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .seletor-container {
+            color: #666;
             margin-bottom: 25px;
-            background-color: #f8fafc;
-            padding: 16px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            width: auto;
-        }
-
-        .seletor-container label {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 14px;
-        }
-
-        #selectTipo {
-            padding: 10px 16px;
             font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 500;
-            border-radius: 8px;
-            border: 2px solid var(--border-color);
-            background-color: white;
-            color: var(--text-main);
+        }
+
+        .passo-container {
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .passo-titulo {
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+            font-size: 16px;
+            width: 100%;
+            text-align: left;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+        }
+
+        select {
+            padding: 10px 14px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
             outline: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            width: 100%;
+            max-width: 350px;
         }
 
-        #selectTipo:focus {
+        #inputIdentificador {
+            padding: 12px 14px;
+            font-size: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 350px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        #inputIdentificador:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
 
         .botoes-container {
-            margin: 20px 0;
             display: flex;
             justify-content: center;
             gap: 15px;
+            width: 100%;
             flex-wrap: wrap;
         }
 
         #previewContainer {
-            margin: 25px 0;
-            min-height: 140px;
+            width: 100%;
+            min-height: 120px;
             display: flex;
             flex-wrap: wrap; 
             justify-content: center;
             align-items: center;
             gap: 15px; 
-            border: 2px dashed #94a3b8;
-            border-radius: var(--radius-md);
-            padding: 25px;
-            background-color: #f8fafc;
+            border: 2px dashed #b0bec5;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fafafa;
+            box-sizing: border-box;
             transition: all 0.3s ease;
         }
 
-        #previewContainer:hover {
-            border-color: var(--primary-color);
-            background-color: #f1f5f9;
-        }
-
         #textoPreview {
-            color: #94a3b8;
-            font-size: 15px;
-            font-weight: 500;
+            color: #90a4ae;
+            font-size: 14px;
         }
 
         .preview-wrapper {
             position: relative;
             display: inline-block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
         }
 
         .preview-img {
-            width: 110px;
-            height: 110px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border: 3px solid white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), 
+                              linear-gradient(135deg, #ccc 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #ccc 75%),
+                              linear-gradient(135deg, transparent 75%, #ccc 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 0, 5px -5px, 0px 5px;
+            background-color: white;
+            border: 2px solid #ddd;
         }
 
         .btn-remover {
             position: absolute;
             top: -10px;
             right: -10px;
-            background-color: #ef4444;
+            background-color: #e74c3c;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
-            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
 
         .btn-remover:hover {
-            transform: scale(1.15);
-            background-color: #dc2626;
+            transform: scale(1.1);
+            background-color: #c0392b;
         }
 
         button {
-            padding: 12px 24px;
+            padding: 12px 20px;
             font-size: 15px;
-            font-family: 'Inter', sans-serif;
             font-weight: 600;
             cursor: pointer;
             border: none;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            border-radius: 6px;
+            transition: background-color 0.3s, transform 0.1s;
         }
 
         button:active {
-            transform: translateY(2px);
+            transform: translateY(1px);
         }
 
         button:disabled {
-            background-color: #e2e8f0 !important;
-            color: #94a3b8 !important;
+            background-color: #cccccc !important;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none !important;
+            box-shadow: none;
         }
 
-        .btn-estilizado, .btn-primario {
-            background-color: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-        }
-
-        .btn-estilizado:hover:not(:disabled), .btn-primario:hover:not(:disabled) {
-            background-color: var(--primary-hover);
-            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
-            transform: translateY(-1px);
-        }
-
-        .btn-secundario {
-            background-color: #e2e8f0;
-            color: #475569;
-        }
-
-        .btn-secundario:hover:not(:disabled) {
-            background-color: #cbd5e1;
-            color: #1e293b;
-        }
-
-        .acoes-container {
-            margin: 30px 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            background-color: white;
-            padding: 30px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-
-        #inputIdentificador {
-            padding: 14px 20px;
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            outline: none;
-            transition: all 0.2s ease;
-            background-color: #f8fafc;
-        }
-
-        #inputIdentificador:focus {
-            border-color: var(--primary-color);
-            background-color: white;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-
-        .botoes-acao {
-            display: flex;
-            gap: 15px;
+        .btn-estilizado, .btn-primario { background-color: var(--primary-color); color: white; }
+        .btn-estilizado:hover, .btn-primario:hover { background-color: var(--primary-hover); }
+        .btn-secundario { background-color: #95a5a6; color: white; }
+        .btn-secundario:hover { background-color: #7f8c8d; }
+        
+        .btn-confirmar {
             width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-cadastrar {
+            max-width: 350px;
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 10px;
             background-color: var(--success-color);
             color: white;
-            flex: 1;
-            min-width: 180px;
-            max-width: 220px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
         }
-
-        .btn-cadastrar:hover:not(:disabled) {
+        
+        .btn-confirmar:hover:not(:disabled) {
             background-color: var(--success-hover);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
         }
 
-        .btn-analisar {
-            background-color: var(--analyze-color);
-            color: white;
-            flex: 1;
-            min-width: 180px;
-            max-width: 220px;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
-        }
-
-        .btn-analisar:hover:not(:disabled) {
-            background-color: var(--analyze-hover);
-            box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
-        }
-
-        .card-hidden {
-            display: none !important;
-        }
+        .card-hidden { display: none !important; }
 
         #cameraContainer {
-            margin: 20px auto;
-            border: 2px solid var(--primary-color);
+            width: 100%;
+            border: 1px solid var(--border-color);
             padding: 15px;
-            border-radius: var(--radius-md);
-            background-color: #f8fafc;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
-            animation: fadeIn 0.3s ease-out;
+            border-radius: 10px;
+            background-color: #fff;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         #videoElement {
             width: 100%;
             max-width: 450px;
             border-radius: 8px;
-            background-color: #0f172a;
+            background-color: #000;
         }
 
         .camera-actions {
@@ -330,219 +245,210 @@
         }
 
         #resultado {
-            margin-top: 30px;
+            margin-top: 25px;
             text-align: left; 
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         .loading-text {
             text-align: center;
             color: var(--primary-color);
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: bold;
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0% { opacity: 0.5; }
+            0% { opacity: 0.6; }
             50% { opacity: 1; }
-            100% { opacity: 0.5; }
+            100% { opacity: 0.6; }
         }
 
         .resultado-item {
-            padding: 20px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
             background-color: #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
             font-size: 14px;
-            line-height: 1.6;
-            animation: fadeIn 0.4s ease-out;
-            border-left: 6px solid transparent;
+            line-height: 1.5;
         }
 
-        .resultado-header {
-            font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .highlight-text {
-            background-color: #f1f5f9;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 15px;
-            font-weight: bold;
-            color: var(--primary-color);
-            border: 1px solid #e2e8f0;
-        }
-
-        .sucesso { 
-            border-left-color: var(--success-color); 
-        }
+        .resultado-header { font-weight: bold; font-size: 15px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .highlight-text { background-color: #e9ecef; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #2c3e50; }
+        .sucesso { background-color: #f2fdf4; border-left: 6px solid var(--success-color); }
         .sucesso .resultado-header { color: var(--success-color); }
+        .falha { background-color: #fffcf2; border-left: 6px solid #ffc107; }
+        .falha .resultado-header { color: #d39e00; }
+        .erro { background-color: #fff5f5; border-left: 6px solid #e74c3c; }
+        .erro .resultado-header { color: #c0392b; }
 
-        .falha { 
-            border-left-color: #f59e0b; 
-        }
-        .falha .resultado-header { color: #d97706; }
-
-        .erro { 
-            border-left-color: #ef4444; 
-        }
-        .erro .resultado-header { color: #dc2626; }
-
-        /* Estilos da Janela Modal de Recorte */
-        .cropper-modal-overlay {
+        /* Estilos dos Modais (Recorte e Remoção Manual) */
+        .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(5px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
             z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
+            justify-content: center; align-items: center;
+            padding: 15px; box-sizing: border-box;
         }
 
-        .cropper-modal-content {
+        .modal-content {
             background-color: #fff;
-            padding: 25px;
-            border-radius: var(--radius-lg);
-            max-width: 550px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            animation: fadeIn 0.3s ease-out;
+            padding: 20px; border-radius: 12px;
+            max-width: 550px; width: 100%;
+            display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .cropper-modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 0;
-            text-align: left;
-        }
-
-        .cropper-area-wrapper {
-            width: 100%;
-            height: 350px;
-            background-color: #f1f5f9;
-            overflow: hidden;
-            border-radius: var(--radius-md);
-            border: 2px solid #e2e8f0;
-        }
-
-        .cropper-area-wrapper img {
-            max-width: 100%;
-            display: block;
-        }
-
-        .cropper-modal-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
+        .modal-header { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 0; text-align: left; }
         
-        /* Ajuste para dispositivos móveis */
-        @media (max-width: 600px) {
-            .main-container { padding: 25px 20px; }
-            .botoes-acao { flex-direction: column; }
-            .btn-cadastrar, .btn-analisar { max-width: 100%; }
+        .area-wrapper {
+            width: 100%; height: 320px;
+            background-color: #f0f0f0; overflow: hidden; border-radius: 6px;
+            display: flex; justify-content: center; align-items: center;
         }
+        .area-wrapper img { max-width: 100%; display: block; }
+        
+        /* Específico para a tela de remoção de fundo */
+        .fundo-wrapper {
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(135deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(135deg, transparent 75%, #ccc 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 0, 5px -5px, 0px 5px;
+            background-color: white;
+            overflow: auto;
+        }
+
+        .fundo-controles {
+            background-color: #f8f9fa; padding: 15px;
+            border-radius: 8px; border: 1px solid var(--border-color);
+        }
+
+        .fundo-controles input[type="range"] {
+            width: 100%; cursor: pointer; margin-top: 10px;
+        }
+
+        .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 5px; }
     </style>
 </head>
 <body>
     <div class="main-container">
         <h1>Reconhecimento Biométrico</h1>
-        <p class="subtitle">Cadastre e identifique rostos ou tatuagens. Selecione ou tire fotos de até 5 imagens (JPG, PNG).</p>
+        <p class="subtitle">Cadastre e identifique rostos ou tatuagens. Selecione ou tire fotos de até 5 imagens.</p>
         
-        <div class="seletor-container">
-            <label for="selectTipo">Tipo de Elemento:</label>
+        <div class="passo-container">
+            <h3 class="passo-titulo">1. Tipo de Imagem</h3>
             <select id="selectTipo">
                 <option value="rosto">👤 Rosto Humano</option>
                 <option value="tatuagem">🎨 Tatuagem / Padrão</option>
             </select>
         </div>
 
-        <input type="file" id="imagemInput" accept=".jpg, .jpeg, .png" multiple style="display: none;">
-        
-        <div class="botoes-container">
-            <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">
-                📁 Escolher Arquivos
-            </button>
-            <button id="btnAbrirCamera" class="btn-estilizado">
-                📷 Usar Câmera
-            </button>
+        <div class="passo-container">
+            <h3 class="passo-titulo">2. O que deseja fazer?</h3>
+            <select id="selectAcao">
+                <option value="reconhecimento">🔍 Reconhecer Imagem</option>
+                <option value="cadastro">📝 Cadastrar Nova Imagem</option>
+            </select>
+            
+            <div id="containerNome" class="card-hidden" style="width: 100%;">
+                <input type="text" id="inputIdentificador" placeholder="Nome do usuário (ex: Joao_Silva)">
+            </div>
         </div>
 
-        <div id="cameraContainer" class="card-hidden">
-            <video id="videoElement" autoplay playsinline></video>
-            <div class="camera-actions">
-                <button id="btnCapturar" class="btn-primario">📸 Tirar Foto</button>
-                <button id="btnFecharCamera" class="btn-secundario">Cancelar</button>
+        <div class="passo-container">
+            <h3 class="passo-titulo">3. Adicionar Imagens</h3>
+            <input type="file" id="imagemInput" accept="image/*" multiple style="display: none;">
+            
+            <div class="botoes-container">
+                <button class="btn-estilizado" onclick="document.getElementById('imagemInput').click()">📁 Escolher Arquivos</button>
+                <button id="btnAbrirCamera" class="btn-estilizado">📷 Usar Câmera</button>
             </div>
-            <canvas id="canvasElement" style="display: none;"></canvas>
-        </div>
-        
-        <div id="previewContainer">
-            <span id="textoPreview">Nenhuma imagem selecionada</span>
-        </div>
-        
-        <div class="acoes-container">
-            <input type="text" id="inputIdentificador" placeholder="Nome sem espaços (ex: joao_silva)">
-            <div class="botoes-acao">
-                <button id="btnCadastrar" class="btn-cadastrar">➕ Cadastrar Imagem</button>
-                <button id="btnAnalisar" class="btn-analisar">🔍 Reconhecer Imagem</button>
+
+            <div id="cameraContainer" class="card-hidden">
+                <video id="videoElement" autoplay playsinline></video>
+                <div class="camera-actions">
+                    <button id="btnCapturar" class="btn-primario">Tirar Foto</button>
+                    <button id="btnFecharCamera" class="btn-secundario">Cancelar</button>
+                </div>
+                <canvas id="canvasElement" style="display: none;"></canvas>
             </div>
+            
+            <div id="previewContainer">
+                <span id="textoPreview">Nenhuma imagem selecionada</span>
+            </div>
+        </div>
+
+        <div>
+            <button id="btnConfirmar" class="btn-confirmar" disabled>Confirmar Reconhecimento</button>
         </div>
 
         <div id="resultado"></div>
     </div>
 
-    <div id="cropperModal" class="cropper-modal-overlay">
-        <div class="cropper-modal-content">
-            <p class="cropper-modal-header">Recortar Região de Interesse</p>
-            <small style="color: var(--text-muted); text-align: left; margin-top: -10px;">
-                Isole a tatuagem ou o rosto eliminando o fundo para melhor assertividade do algoritmo.
-            </small>
-            <div class="cropper-area-wrapper">
+    <div id="cropperModal" class="modal-overlay">
+        <div class="modal-content">
+            <p class="modal-header">1/2 - Recortar Região</p>
+            <small style="color: #7f8c8d; text-align: left; margin-top: -10px;">Enquadre exatamente a tatuagem ou o rosto.</small>
+            
+            <div class="area-wrapper">
                 <img id="cropperImage" src="" alt="Imagem para recortar">
             </div>
-            <div class="cropper-modal-actions">
-                <button id="btnCancelarRecorte" class="btn-secundario" style="padding: 10px 16px; font-size: 14px;">Ignorar / Cancelar</button>
-                <button id="btnConfirmarRecorte" class="btn-primario" style="padding: 10px 16px; font-size: 14px;">Confirmar Recorte</button>
+
+            <div class="modal-actions">
+                <button id="btnCancelarRecorte" class="btn-secundario" style="padding: 10px 16px; font-size: 14px;">Cancelar</button>
+                <button id="btnAvançarFundo" class="btn-primario" style="padding: 10px 16px; font-size: 14px;">Confirmar Recorte</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fundoModal" class="modal-overlay">
+        <div class="modal-content">
+            <p class="modal-header">2/2 - Remoção de Fundo</p>
+            <small style="color: #7f8c8d; text-align: left; margin-top: -10px;">
+                <strong>Clique na imagem abaixo</strong> para selecionar a cor que quer remover. Deslize a barra para ajustar a varredura em tempo real.
+            </small>
+            
+            <div class="area-wrapper fundo-wrapper">
+                <canvas id="fundoCanvas" style="cursor: crosshair; max-width: 100%; max-height: 100%; object-fit: contain;"></canvas>
+            </div>
+
+            <div class="fundo-controles">
+                <div style="display:flex; justify-content: space-between; align-items: center;">
+                    <div style="display:flex; align-items: center; gap: 8px;">
+                        <span style="font-weight: 600; color: #2c3e50; font-size: 14px;">Cor Alvo:</span>
+                        <div id="corAlvoDisplay" style="width: 20px; height: 20px; border-radius: 4px; border: 1px solid #aaa; background-color: #fff;"></div>
+                    </div>
+                    <span style="font-weight: 600; color: #2c3e50; font-size: 14px;">Agressividade: <span id="agressividadeValor">40</span></span>
+                </div>
+                <input type="range" id="sliderAgressividade" min="0" max="255" value="40">
+            </div>
+
+            <div class="modal-actions">
+                <button id="btnPularFundo" class="btn-secundario" style="padding: 10px 16px; font-size: 14px;">Manter Fundo Original</button>
+                <button id="btnConfirmarFundo" class="btn-primario" style="padding: 10px 16px; font-size: 14px;">Adicionar Imagem Final</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    
     <script>
-        // Mantenha seu link ngrok aqui
         const BASE_URL = 'https://panoramic-figure-mushroom.ngrok-free.dev';
 
+        // Interface Elements
+        const selectTipo = document.getElementById('selectTipo');
+        const selectAcao = document.getElementById('selectAcao');
+        const containerNome = document.getElementById('containerNome');
+        const inputIdentificador = document.getElementById('inputIdentificador');
         const imagemInput = document.getElementById('imagemInput');
         const previewContainer = document.getElementById('previewContainer');
-        const btnAnalisar = document.getElementById('btnAnalisar');
-        const btnCadastrar = document.getElementById('btnCadastrar');
-        const inputIdentificador = document.getElementById('inputIdentificador');
+        const btnConfirmar = document.getElementById('btnConfirmar');
         const resultadoContainer = document.getElementById('resultado');
-        const selectTipo = document.getElementById('selectTipo');
 
+        // Camera
         const cameraContainer = document.getElementById('cameraContainer');
         const videoElement = document.getElementById('videoElement');
         const canvasElement = document.getElementById('canvasElement');
@@ -550,106 +456,220 @@
         const btnCapturar = document.getElementById('btnCapturar');
         const btnFecharCamera = document.getElementById('btnFecharCamera');
 
+        // Modais (Recorte e Fundo)
         const cropperModal = document.getElementById('cropperModal');
         const cropperImage = document.getElementById('cropperImage');
         const btnCancelarRecorte = document.getElementById('btnCancelarRecorte');
-        const btnConfirmarRecorte = document.getElementById('btnConfirmarRecorte');
+        const btnAvançarFundo = document.getElementById('btnAvançarFundo');
+        
+        const fundoModal = document.getElementById('fundoModal');
+        const fundoCanvas = document.getElementById('fundoCanvas');
+        const sliderAgressividade = document.getElementById('sliderAgressividade');
+        const agressividadeValor = document.getElementById('agressividadeValor');
+        const corAlvoDisplay = document.getElementById('corAlvoDisplay');
+        const btnPularFundo = document.getElementById('btnPularFundo');
+        const btnConfirmarFundo = document.getElementById('btnConfirmarFundo');
 
+        // Estado e Controle
         let imagensSelecionadas = [];
-        let filaArquivosParaCortar = [];
-        let arquivoAtualSendoCortado = null;
+        let filaArquivos = []; 
+        let arquivoAtual = null;
         let cropperInstance = null;
         let streamDeVideo = null;
         const LIMITE_IMAGENS = 5;
 
-        imagemInput.addEventListener('change', (evento) => {
-            const arquivosPermitidos = Array.from(evento.target.files).filter(file => 
-                ['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)
-            );
-            
-            if (arquivosPermitidos.length < evento.target.files.length) {
-                alert("Alguns arquivos foram ignorados. Envie apenas formatos JPG, JPEG ou PNG.");
-            }
+        // Variaveis da Edição de Fundo Manual
+        let fundoOriginalCanvas = null; 
+        let fundoCtx = null;
+        let corAlvo = null; // {r, g, b}
 
-            adicionarImagensFila(arquivosPermitidos);
+        // UX: Ação (Cadastro vs Reconhecimento)
+        selectAcao.addEventListener('change', () => {
+            if (selectAcao.value === 'cadastro') {
+                containerNome.classList.remove('card-hidden');
+                btnConfirmar.innerText = 'Confirmar Cadastro';
+            } else {
+                containerNome.classList.add('card-hidden');
+                btnConfirmar.innerText = 'Confirmar Reconhecimento';
+            }
+        });
+        selectAcao.dispatchEvent(new Event('change'));
+
+        // ==========================================
+        // FLUXO DE ADIÇÃO DE IMAGENS E CORTES
+        // ==========================================
+        imagemInput.addEventListener('change', (e) => {
+            adicionarImagensFila(Array.from(e.target.files));
             imagemInput.value = ''; 
         });
 
         function adicionarImagensFila(novosArquivos) {
             if (imagensSelecionadas.length + novosArquivos.length > LIMITE_IMAGENS) {
-                alert(`Conforme documentação da API, o limite é de ${LIMITE_IMAGENS} imagens por requisição.`);
-                const vagasRestantes = LIMITE_IMAGENS - imagensSelecionadas.length;
-                novosArquivos = novosArquivos.slice(0, vagasRestantes);
+                alert(`Limite de ${LIMITE_IMAGENS} imagens. Cortando excedentes...`);
+                novosArquivos = novosArquivos.slice(0, LIMITE_IMAGENS - imagensSelecionadas.length);
             }
-            filaArquivosParaCortar = [...filaArquivosParaCortar, ...novosArquivos];
-            processarProximaImagemFila();
+            filaArquivos = [...filaArquivos, ...novosArquivos];
+            processarProximaImagem();
         }
 
-        function processarProximaImagemFila() {
-            if (filaArquivosParaCortar.length === 0) return;
+        function processarProximaImagem() {
+            if (filaArquivos.length === 0) return;
+            if (imagensSelecionadas.length >= LIMITE_IMAGENS) { filaArquivos = []; return; }
 
-            if (imagensSelecionadas.length >= LIMITE_IMAGENS) {
-                filaArquivosParaCortar = [];
-                return;
-            }
-
-            arquivoAtualSendoCortado = filaArquivosParaCortar.shift();
-            const urlTemporaria = URL.createObjectURL(arquivoAtualSendoCortado);
+            arquivoAtual = filaArquivos.shift();
+            const urlTemporaria = URL.createObjectURL(arquivoAtual);
             
             cropperImage.onload = () => {
                 if (cropperInstance) cropperInstance.destroy();
-                
                 cropperInstance = new Cropper(cropperImage, {
-                    viewMode: 1,
-                    autoCropArea: 0.85,
-                    responsive: true,
-                    restore: false,
-                    checkCrossOrigin: false,
-                    aspectRatio: NaN
+                    viewMode: 1, autoCropArea: 0.9, responsive: true,
+                    restore: false, checkCrossOrigin: false, aspectRatio: NaN
                 });
             };
-
             cropperImage.src = urlTemporaria;
             cropperModal.style.display = 'flex';
         }
 
-        btnConfirmarRecorte.addEventListener('click', () => {
-            if (!cropperInstance) return;
-
-            const canvasCortado = cropperInstance.getCroppedCanvas({
-                maxWidth: 1024,
-                maxHeight: 1024
-            });
-
-            canvasCortado.toBlob((blob) => {
-                const nomeFinal = `recortado_${Date.now()}_${arquivoAtualSendoCortado.name || 'foto.jpg'}`;
-                const arquivoRecortado = new File([blob], nomeFinal, { type: 'image/jpeg' });
-                
-                imagensSelecionadas.push(arquivoRecortado);
-                atualizarInterface();
-                fecharModalRecorte();
-                processarProximaImagemFila();
-            }, 'image/jpeg', 0.9);
-        });
-
         btnCancelarRecorte.addEventListener('click', () => {
             fecharModalRecorte();
-            processarProximaImagemFila();
+            processarProximaImagem();
         });
 
         function fecharModalRecorte() {
             cropperModal.style.display = 'none';
-            if (cropperInstance) {
-                cropperInstance.destroy();
-                cropperInstance = null;
-            }
-            if (cropperImage.src) {
-                URL.revokeObjectURL(cropperImage.src);
-                cropperImage.src = '';
-            }
-            arquivoAtualSendoCortado = null;
+            if (cropperInstance) cropperInstance.destroy();
+            cropperInstance = null;
+            if (cropperImage.src) { URL.revokeObjectURL(cropperImage.src); cropperImage.src = ''; }
         }
 
+        // ==========================================
+        // FLUXO DE REMOÇÃO DE FUNDO MANUAL (CANVAS)
+        // ==========================================
+        btnAvançarFundo.addEventListener('click', () => {
+            if (!cropperInstance) return;
+
+            const canvasCortado = cropperInstance.getCroppedCanvas({ maxWidth: 1024, maxHeight: 1024 });
+
+            // Salva a imagem intocada em memória
+            fundoOriginalCanvas = document.createElement('canvas');
+            fundoOriginalCanvas.width = canvasCortado.width;
+            fundoOriginalCanvas.height = canvasCortado.height;
+            const ctxOrig = fundoOriginalCanvas.getContext('2d', { willReadFrequently: true });
+            ctxOrig.drawImage(canvasCortado, 0, 0);
+
+            // Prepara a tela de preview visível
+            fundoCanvas.width = canvasCortado.width;
+            fundoCanvas.height = canvasCortado.height;
+            fundoCtx = fundoCanvas.getContext('2d', { willReadFrequently: true });
+            fundoCtx.drawImage(canvasCortado, 0, 0);
+
+            // Resgata a cor do primeiro pixel útil (canto superior esquerdo) para iniciar
+            const pixelTopLeft = ctxOrig.getImageData(2, 2, 1, 1).data;
+            corAlvo = { r: pixelTopLeft[0], g: pixelTopLeft[1], b: pixelTopLeft[2] };
+            corAlvoDisplay.style.backgroundColor = `rgb(${corAlvo.r}, ${corAlvo.g}, ${corAlvo.b})`;
+            
+            sliderAgressividade.value = 40;
+            agressividadeValor.innerText = 40;
+            
+            aplicarFundoMagico(); // Aplica a primeira limpeza
+
+            fecharModalRecorte();
+            fundoModal.style.display = 'flex';
+        });
+
+        // Captura o Clique do Usuário para trocar a Cor do Fundo
+        fundoCanvas.addEventListener('click', (e) => {
+            const rect = fundoCanvas.getBoundingClientRect();
+            const scaleX = fundoCanvas.width / rect.width;
+            const scaleY = fundoCanvas.height / rect.height;
+            
+            const x = Math.floor((e.clientX - rect.left) * scaleX);
+            const y = Math.floor((e.clientY - rect.top) * scaleY);
+            
+            const ctxOrig = fundoOriginalCanvas.getContext('2d', { willReadFrequently: true });
+            const pixel = ctxOrig.getImageData(x, y, 1, 1).data;
+            
+            corAlvo = { r: pixel[0], g: pixel[1], b: pixel[2] };
+            corAlvoDisplay.style.backgroundColor = `rgb(${corAlvo.r}, ${corAlvo.g}, ${corAlvo.b})`;
+            
+            aplicarFundoMagico();
+        });
+
+        // Modifica a agressividade instantaneamente
+        sliderAgressividade.addEventListener('input', () => {
+            agressividadeValor.innerText = sliderAgressividade.value;
+            aplicarFundoMagico();
+        });
+
+        // O Coração da Remoção em Tempo Real:
+        function aplicarFundoMagico() {
+            if (!corAlvo || !fundoOriginalCanvas) return;
+            
+            const width = fundoOriginalCanvas.width;
+            const height = fundoOriginalCanvas.height;
+            const ctxOrig = fundoOriginalCanvas.getContext('2d', { willReadFrequently: true });
+            
+            // Lê sempre da imagem original para não perder dados ao mudar a barra
+            const imgData = ctxOrig.getImageData(0, 0, width, height);
+            const data = imgData.data;
+            const len = data.length;
+            
+            const agressividade = parseInt(sliderAgressividade.value);
+            const margemFeather = agressividade + 20; // margem de suavização (anti-aliasing de borda)
+            
+            for (let i = 0; i < len; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const originalAlpha = data[i + 3];
+                
+                // Distância Euclidiana 3D para definir a diferença entre as cores
+                const distancia = Math.sqrt(
+                    Math.pow(r - corAlvo.r, 2) + 
+                    Math.pow(g - corAlvo.g, 2) + 
+                    Math.pow(b - corAlvo.b, 2)
+                );
+                
+                if (distancia <= agressividade) {
+                    data[i + 3] = 0; // Apaga tudo dentro da agressividade exata (Fundo)
+                } else if (distancia <= margemFeather) {
+                    // Transição suave para os pixels próximos do corte (Evita bordas serrilhadas)
+                    const opacidadePercentual = ((distancia - agressividade) / 20);
+                    data[i + 3] = Math.floor(originalAlpha * opacidadePercentual);
+                }
+            }
+            
+            fundoCtx.putImageData(imgData, 0, 0); // Desenha super rápido no Canvas Visual
+        }
+
+        // CONFIRMAÇÕES FINAIS DO MODAL
+        btnConfirmarFundo.addEventListener('click', () => {
+            // Salva como PNG para respeitar as bordas transparentes cortadas
+            fundoCanvas.toBlob((blob) => {
+                const finalBlob = new File([blob], `processado_${Date.now()}.png`, { type: 'image/png' });
+                salvarEProsseguir(finalBlob);
+            }, 'image/png');
+        });
+
+        btnPularFundo.addEventListener('click', () => {
+            // Salva a versão original sem o filtro, usando o formato JPG
+            fundoOriginalCanvas.toBlob((blob) => {
+                const finalBlob = new File([blob], `original_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                salvarEProsseguir(finalBlob);
+            }, 'image/jpeg', 0.9);
+        });
+
+        function salvarEProsseguir(arquivoFinal) {
+            imagensSelecionadas.push(arquivoFinal);
+            atualizarInterface();
+            fundoModal.style.display = 'none';
+            fundoOriginalCanvas = null;
+            processarProximaImagem(); 
+        }
+
+        // ==========================================
+        // CÂMERA E INTEGRAÇÃO DE BOTOES RESTANTES
+        // ==========================================
         if (btnAbrirCamera) {
             btnAbrirCamera.addEventListener('click', async () => {
                 try {
@@ -657,205 +677,92 @@
                     videoElement.srcObject = streamDeVideo;
                     cameraContainer.classList.remove('card-hidden');
                     btnAbrirCamera.disabled = true;
-                } catch (erro) {
-                    alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
-                    console.error(erro);
-                }
+                } catch (erro) { alert("Erro de Câmera."); }
             });
         }
 
-        if (btnFecharCamera) {
-            btnFecharCamera.addEventListener('click', fecharCamera);
-        }
+        if (btnFecharCamera) btnFecharCamera.addEventListener('click', fecharCamera);
 
         function fecharCamera() {
-            if (streamDeVideo) {
-                streamDeVideo.getTracks().forEach(track => track.stop());
-            }
+            if (streamDeVideo) streamDeVideo.getTracks().forEach(t => t.stop());
             cameraContainer.classList.add('card-hidden');
             btnAbrirCamera.disabled = false;
         }
 
         if (btnCapturar) {
             btnCapturar.addEventListener('click', () => {
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-                const contexto = canvasElement.getContext('2d');
-                contexto.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-                
+                canvasElement.width = videoElement.videoWidth; canvasElement.height = videoElement.videoHeight;
+                canvasElement.getContext('2d').drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
                 canvasElement.toBlob((blob) => {
-                    const arquivoCamera = new File([blob], `foto_camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-                    adicionarImagensFila([arquivoCamera]);
+                    adicionarImagensFila([new File([blob], `cam_${Date.now()}.jpg`, { type: 'image/jpeg' })]);
                     fecharCamera();
                 }, 'image/jpeg', 0.9);
             });
         }
 
+        // Atualização Visual (Thumbnail Viewer)
         function atualizarInterface() {
             if (imagensSelecionadas.length === 0) {
                 previewContainer.innerHTML = '<span id="textoPreview">Nenhuma imagem selecionada</span>';
-                btnAnalisar.disabled = true;
-                btnCadastrar.disabled = true;
-                return;
+                btnConfirmar.disabled = true; return;
             }
-
-            btnAnalisar.disabled = false;
-            btnCadastrar.disabled = false;
-            previewContainer.innerHTML = ''; 
-            
-            imagensSelecionadas.forEach((arquivo, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'preview-wrapper';
-
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(arquivo);
-                img.className = 'preview-img';
-
-                const btnRemover = document.createElement('button');
-                btnRemover.innerHTML = '✕';
-                btnRemover.className = 'btn-remover';
-                btnRemover.onclick = () => {
-                    imagensSelecionadas.splice(index, 1);
-                    atualizarInterface();
-                };
-
-                wrapper.appendChild(img);
-                wrapper.appendChild(btnRemover);
-                previewContainer.appendChild(wrapper);
+            btnConfirmar.disabled = false; previewContainer.innerHTML = ''; 
+            imagensSelecionadas.forEach((arquivo, i) => {
+                const wrapper = document.createElement('div'); wrapper.className = 'preview-wrapper';
+                const img = document.createElement('img'); img.src = URL.createObjectURL(arquivo); img.className = 'preview-img';
+                const btn = document.createElement('button'); btn.innerHTML = '✕'; btn.className = 'btn-remover';
+                btn.onclick = () => { imagensSelecionadas.splice(i, 1); atualizarInterface(); };
+                wrapper.appendChild(img); wrapper.appendChild(btn); previewContainer.appendChild(wrapper);
             });
         }
 
-        function renderizarResultados(dados, acao) {
-            resultadoContainer.innerHTML = "";
-            const tipoSelecionado = selectTipo.value;
-            const limiteDistancia = tipoSelecionado === 'rosto' ? '0.68' : '0.40';
-
-            dados.resultados.forEach(res => {
-                const divItem = document.createElement('div');
-                divItem.classList.add('resultado-item');
-
-                if (res.status === "sucesso") {
-                    divItem.classList.add('sucesso');
-                    if (acao === 'reconhecer') {
-                        divItem.innerHTML = `
-                            <div class="resultado-header">✅ Elemento Identificado</div>
-                            <strong>Arquivo:</strong> ${res.arquivo} <br>
-                            <strong>Usuário Correspondente:</strong> <span class="highlight-text">${res.nome_identificado}</span> <br>
-                            <small>Métrica de Distância: <strong>${res.distancia.toFixed(4)}</strong> (Limiar da API: ${limiteDistancia})</small>
-                        `;
-                    } else {
-                        divItem.innerHTML = `
-                            <div class="resultado-header">✅ Cadastro Concluído</div>
-                            <strong>Arquivo:</strong> ${res.arquivo} <br>
-                            <strong>Status:</strong> ${res.mensagem || 'Salvo no banco de dados com sucesso.'}
-                        `;
-                    }
-                } else if (res.status === "erro") {
-                    divItem.classList.add('erro');
-                    divItem.innerHTML = `
-                        <div class="resultado-header">⚠️ Erro Operacional</div>
-                        <strong>Arquivo:</strong> ${res.arquivo} <br>
-                        <strong>Detalhe:</strong> ${res.mensagem}
-                    `;
-                } else {
-                    divItem.classList.add('falha');
-                    const razao = res.mensagem || "Sem correspondência no banco vetorial.";
-                    divItem.innerHTML = `
-                        <div class="resultado-header">❓ Não Reconhecido</div>
-                        <strong>Arquivo:</strong> ${res.arquivo} <br>
-                        <strong>Resultado:</strong> ${razao}
-                    `;
-                }
-
-                resultadoContainer.appendChild(divItem);
-            });
-        }
-
-        btnCadastrar.addEventListener('click', async () => {
-            const identificador = inputIdentificador.value.trim();
-            
-            if (!identificador || !/^[a-zA-Z0-9_]+$/.test(identificador)) {
-                alert("Por favor, digite um nome válido (apenas letras, números e underscores, sem espaços)!");
-                inputIdentificador.focus();
-                return;
-            }
-
-            const tipo = selectTipo.value;
-            const endpoint = tipo === 'rosto' ? '/api/cadastrar' : '/api/cadastrar-tatuagem';
-
-            btnCadastrar.disabled = true;
-            btnAnalisar.disabled = true;
-            btnCadastrar.innerHTML = "⏳ Cadastrando...";
-            resultadoContainer.innerHTML = `<p class='loading-text'>Cadastrando elemento (${tipo})... por favor, aguarde.</p>`;
-
+        // Submissão API Final
+        btnConfirmar.addEventListener('click', async () => {
+            const acao = selectAcao.value; const tipo = selectTipo.value;
             const formData = new FormData();
-            formData.append('nome', identificador);
-            imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
+
+            if (acao === 'cadastro') {
+                const ident = inputIdentificador.value.trim();
+                if (!ident) return alert("Digite um nome para cadastrar!");
+                formData.append('nome', ident);
+            }
+
+            btnConfirmar.disabled = true; btnConfirmar.innerText = "Processando...";
+            resultadoContainer.innerHTML = `<p class='loading-text'>Processando ${acao}... aguarde.</p>`;
+            imagensSelecionadas.forEach(arq => formData.append('files', arq));
+
+            const endpoint = acao === 'cadastro' 
+                ? (tipo === 'rosto' ? '/api/cadastrar' : '/api/cadastrar-tatuagem')
+                : (tipo === 'rosto' ? '/api/reconhecer' : '/api/reconhecer-tatuagem');
 
             try {
-                const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
-                    method: 'POST', 
-                    body: formData,
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
-                });
-
-                if (!resposta.ok) {
-                    const erroJson = await resposta.json().catch(() => null);
-                    throw new Error(erroJson?.detail || `Erro HTTP ${resposta.status}`);
-                }
-
-                const dados = await resposta.json();
-                renderizarResultados(dados, 'cadastrar');
+                const resp = await fetch(`${BASE_URL}${endpoint}`, { method: 'POST', body: formData, headers: { 'ngrok-skip-browser-warning': 'true' } });
+                if (!resp.ok) throw new Error("Erro na resposta do servidor");
+                const dados = await resp.json();
                 
-                inputIdentificador.value = '';
-                imagensSelecionadas = [];
-                atualizarInterface();
-
-            } catch (erro) {
-                console.error(erro);
-                resultadoContainer.innerHTML = `<div class="resultado-item erro"><div class="resultado-header">❌ Erro de conexão</div>${erro.message}</div>`;
-            } finally {
-                btnCadastrar.innerHTML = "➕ Cadastrar Imagem";
-                atualizarInterface(); 
-            }
-        });
-
-        btnAnalisar.addEventListener('click', async () => {
-            const tipo = selectTipo.value;
-            const endpoint = tipo === 'rosto' ? '/api/reconhecer' : '/api/reconhecer-tatuagem';
-
-            btnAnalisar.disabled = true;
-            btnCadastrar.disabled = true;
-            btnAnalisar.innerHTML = "⏳ Processando...";
-            resultadoContainer.innerHTML = `<p class='loading-text'>Analisando características de ${tipo} no ChromaDB... aguarde.</p>`;
-
-            const formData = new FormData();
-            imagensSelecionadas.forEach(arquivo => formData.append('files', arquivo));
-
-            try {
-                const resposta = await fetch(`${BASE_URL}${endpoint}`, { 
-                    method: 'POST', 
-                    body: formData,
-                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                resultadoContainer.innerHTML = "";
+                dados.resultados.forEach(res => {
+                    const div = document.createElement('div'); div.classList.add('resultado-item');
+                    if (res.status === "sucesso") {
+                        div.classList.add('sucesso');
+                        div.innerHTML = acao === 'reconhecimento' 
+                            ? `<div class="resultado-header">✅ Identificado</div><strong>${res.arquivo}</strong> -> <span class="highlight-text">${res.nome_identificado}</span>`
+                            : `<div class="resultado-header">✅ Cadastro</div><strong>${res.arquivo}</strong> cadastrado!`;
+                    } else {
+                        div.classList.add('erro'); div.innerHTML = `<div class="resultado-header">❌ Erro/Falha</div><strong>${res.arquivo}</strong>: ${res.mensagem || 'Falha na IA'}`;
+                    }
+                    resultadoContainer.appendChild(div);
                 });
-
-                if (!resposta.ok) {
-                    const erroJson = await resposta.json().catch(() => null);
-                    throw new Error(erroJson?.detail || `Erro HTTP ${resposta.status}`);
-                }
-
-                const dados = await resposta.json();
-                renderizarResultados(dados, 'reconhecer');
-
-            } catch (erro) {
-                console.error(erro);
-                resultadoContainer.innerHTML = `<div class="resultado-item erro"><div class="resultado-header">❌ Erro de conexão</div>${erro.message}</div>`;
+                
+                if (acao === 'cadastro') { inputIdentificador.value = ''; imagensSelecionadas = []; }
+            } catch (err) {
+                resultadoContainer.innerHTML = `<div class="resultado-item erro">❌ Falha: ${err.message}</div>`;
             } finally {
-                btnAnalisar.innerHTML = "🔍 Reconhecer Imagem";
+                btnConfirmar.innerText = acao === 'cadastro' ? "Confirmar Cadastro" : "Confirmar Reconhecimento";
                 atualizarInterface(); 
             }
         });
-
+        
         atualizarInterface();
     </script>
 </body>
