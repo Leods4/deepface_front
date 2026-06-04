@@ -1,48 +1,86 @@
-# 📖 Documentação do Frontend - Sistema Biométrico Multimodal
+# Sistema Biométrico Multimodal 👁️🎨
 
-## 📌 Visão Geral
-Este é o frontend da aplicação de Reconhecimento Biométrico, focado em identificar rostos humanos e tatuagens. Desenvolvido com HTML5, CSS3 e Vanilla JavaScript (sem frameworks complexos), ele oferece uma interface moderna, responsiva e amigável para interagir com a API de biometria baseada em FastAPI e ChromaDB.
+Uma aplicação web (Frontend) projetada para realizar o **cadastro e reconhecimento** de rostos humanos e tatuagens/padrões. A interface permite o envio de imagens via upload de arquivos ou captura direta pela webcam, oferecendo ferramentas integradas de edição (recorte e remoção mágica de fundo) antes do envio para a API de Inteligência Artificial.
 
-## ✨ Principais Funcionalidades
-* **Seleção Flexível de Imagens:** Suporte para envio de arquivos via explorador do sistema ou captura em tempo real usando a câmera do dispositivo (webcam ou câmera traseira de celulares).
-* **Validação Integrada:** Restrição automática para formatos suportados (`.jpg`, `.jpeg`, `.png`) e limite de envio de até 5 imagens por requisição.
-* **Recorte Inteligente (Crop):** Integração com a biblioteca `Cropper.js` que abre um modal automático para que o usuário isole o rosto ou a tatuagem, removendo o fundo e melhorando a precisão da IA.
-* **Feedback Visual:** Área de "Dropzone" para pré-visualização das imagens selecionadas, botões de remoção individual e exibição de carregamento (loading) durante o processamento.
-* **Tratamento de Resultados:** Exibição detalhada dos retornos da API em cards coloridos (Sucesso, Falha, Erro), incluindo a métrica de distância matemática e o limiar (threshold) exigido.
+---
 
-## 🛠 Tecnologias Utilizadas
-* **HTML5 & CSS3:** Estrutura semântica com design moderno, utilizando variáveis CSS, gradientes, `backdrop-filter` (efeito vidro) e animações suaves.
-* **Vanilla JavaScript (ES6+):** Manipulação do DOM, controle da câmera via `navigator.mediaDevices` e consumo da API via `Fetch API`.
-* **Cropper.js (v1.6.2):** Biblioteca externa via CDN utilizada para o modal de recorte de imagens.
+## 🚀 Funcionalidades
 
-## ⚙️ Configuração
-A única configuração necessária no frontend é apontar para a URL correta do seu backend. 
+* **Multimodalidade:** Suporte para identificação e cadastro de **Rostos Humanos** e **Tatuagens**.
+* **Ações Duplas:** Interface adaptável para **Reconhecimento** de uma imagem existente ou **Cadastro** de uma nova identidade no banco de dados.
+* **Captura Flexível:** * Upload de múltiplas imagens (até 5 arquivos de uma vez).
+    * Integração com a câmera do dispositivo (webcam/mobile) para tirar fotos em tempo real.
+* **Edição Avançada no Navegador:**
+    * **Recorte Preciso:** Utiliza o *Cropper.js* para focar exatamente no rosto ou na tatuagem.
+    * **Remoção de Fundo Mágica:** Ferramenta customizada via Canvas que permite clicar em uma cor de fundo para removê-la, com um *slider* ajustável de agressividade/tolerância em tempo real.
+* **Feedback Visual:** Sistema de pré-visualização de imagens selecionadas (thumbnails) e cards coloridos com o status da requisição (Sucesso, Falha ou Erro).
 
-Abra o arquivo `index.html`, vá até a tag `<script>` (próximo à linha 400) e edite a constante `BASE_URL`:
+---
 
-```javascript
-// Exemplo usando Ngrok (para testes externos)
-const BASE_URL = '[https://seu-link-aqui.ngrok-free.dev](https://seu-link-aqui.ngrok-free.dev)';
+## 🛠️ Tecnologias Utilizadas
 
-// Exemplo rodando localmente sem Ngrok
-// const BASE_URL = '[http://127.0.0.1:8000](http://127.0.0.1:8000)';
+* **HTML5** (Estruturação semântica)
+* **CSS3** (Estilização responsiva, variáveis CSS, animações e layout Flexbox)
+* **JavaScript (Vanilla)** (Lógica de manipulação do DOM, manipulação de arquivos via API `File/Blob`, controle de câmera via `navigator.mediaDevices` e requisições HTTP nativas com `fetch`).
+* **[Cropper.js](https://fengyuanchen.github.io/cropperjs/)** (Biblioteca externa via CDN para o recorte de imagens).
+
+---
+
+## 📂 Estrutura do Projeto
+
+O código foi componentizado para facilitar a manutenção e escalabilidade:
+
+```text
+/
+├── index.html   # Estrutura principal da página e modais
+├── style.css    # Regras visuais e de interface do usuário
+└── script.js    # Lógica de negócio, câmera, edição em canvas e chamadas de API
 ```
 
-## 🔄 Fluxo de Funcionamento (User Flow)
-1. **Escolha do Tipo:** O usuário seleciona no menu suspenso se deseja processar um "Rosto Humano" ou uma "Tatuagem / Padrão".
-2. **Captura da Imagem:** Clica em "Escolher Arquivos" ou "Usar Câmera".
-3. **Recorte (Opcional):** Se as imagens forem carregadas, um modal de recorte se abrirá para cada imagem. O usuário pode confirmar o recorte da região de interesse ou cancelar/ignorar.
-4. **Ação (Cadastro ou Análise):**
-   * **Cadastrar:** O usuário digita um nome identificador (sem espaços) e clica em "Cadastrar Imagem".
-   * **Reconhecer:** O usuário clica em "Reconhecer Imagem" (não exige digitação de nome).
-5. **Resultado:** O sistema formata um objeto `FormData`, envia via requisição `POST` para a API e exibe os cards de resultado na tela.
+---
 
-## 🔌 Integração com a API
-O frontend se comunica com 4 rotas principais do backend, dependendo das escolhas do usuário:
-* `POST /api/cadastrar`: Envia características faciais para salvar no banco.
-* `POST /api/reconhecer`: Busca correspondência de um rosto.
-* `POST /api/cadastrar-tatuagem`: Salva o padrão de uma tatuagem.
-* `POST /api/reconhecer-tatuagem`: Busca correspondência de uma tatuagem.
+## ⚙️ Como Executar o Projeto
 
-**Nota sobre o Ngrok:**
-As requisições `fetch` no código incluem o cabeçalho `{'ngrok-skip-browser-warning': 'true'}`. Isso é crucial quando a API está sendo exposta pelo Ngrok, pois impede que o Ngrok bloqueie a requisição JSON exibindo sua página HTML de aviso padrão.
+Como este é um projeto focado no *Frontend*, sua execução é extremamente simples e não requer a instalação de pacotes como o `npm` (Node.js) para rodar a interface.
+
+1. **Clone ou baixe o repositório** para a sua máquina.
+2. Certifique-se de que os três arquivos (`index.html`, `style.css` e `script.js`) estão na mesma pasta.
+3. Dê um duplo clique no arquivo `index.html` para abri-lo no seu navegador padrão (Chrome, Firefox, Edge, Safari).
+    * *Nota:* O uso da câmera e ferramentas de canvas avançadas pode exigir que a página seja servida por um servidor local em alguns navegadores devido a políticas de CORS e segurança (ex: extensão *Live Server* do VSCode).
+
+---
+
+## 🔌 Configuração da API (Backend)
+
+Atualmente, o projeto está configurado para se comunicar com um backend hospedado em um túnel do **Ngrok**. Para que o sistema funcione com o seu próprio servidor ou uma nova URL, você precisará atualizar a variável base no arquivo de script.
+
+### Como alterar a URL da API:
+Abra o arquivo `script.js` e localize a primeira linha do código:
+
+```javascript
+const BASE_URL = '[https://sua-url-aqui.com](https://sua-url-aqui.com)';
+```
+
+### Endpoints Consumidos:
+O frontend espera que o backend responda aos seguintes endpoints via método `POST`, enviando dados através de `FormData` (com campos `files` e `nome`):
+
+* `/api/cadastrar` - Cadastra um novo rosto.
+* `/api/reconhecer` - Identifica um rosto existente.
+* `/api/cadastrar-tatuagem` - Cadastra uma nova tatuagem.
+* `/api/reconhecer-tatuagem` - Identifica uma tatuagem existente.
+
+**Formato de Resposta Esperado (JSON):**
+```json
+{
+  "resultados": [
+    {
+      "status": "sucesso",
+      "arquivo": "nome_do_arquivo.jpg",
+      "nome_identificado": "Joao_Silva"
+    }
+  ]
+}
+```
+
+---
+*Desenvolvido para sistemas de verificação de identidade e análise biométrica inteligente.*
